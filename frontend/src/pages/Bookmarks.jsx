@@ -6,6 +6,8 @@ export default function Bookmarks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedIds, setExpandedIds] = useState(new Set());
+  const [aiExplanations, setAiExplanations] = useState({});
+  const [aiLoading, setAiLoading] = useState({});
   const [highlights, setHighlights] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('neetpg_highlights') || '{}');
@@ -62,6 +64,19 @@ export default function Bookmarks() {
       return next;
     });
     sel.removeAllRanges();
+  };
+
+  const fetchAiExplanation = async (questionId) => {
+    if (aiExplanations[questionId] || aiLoading[questionId]) return;
+    setAiLoading(prev => ({ ...prev, [questionId]: true }));
+    try {
+      const res = await api.get(`/ai/explain/${questionId}`);
+      setAiExplanations(prev => ({ ...prev, [questionId]: res.data.detailedExplanation }));
+    } catch {
+      setAiExplanations(prev => ({ ...prev, [questionId]: 'Failed to load AI explanation. Please try again.' }));
+    } finally {
+      setAiLoading(prev => ({ ...prev, [questionId]: false }));
+    }
   };
 
   const removeHighlight = (questionId, text) => {
@@ -231,6 +246,32 @@ export default function Bookmarks() {
                       <p className="text-sm text-blue-900 leading-relaxed whitespace-pre-wrap select-text">
                         {renderHighlighted(bookmark.explanation, qId)}
                       </p>
+                    </div>
+                  )}
+
+                  {isExpanded && (
+                    <div className="mt-3">
+                      {!aiExplanations[qId] ? (
+                        <button
+                          onClick={() => fetchAiExplanation(qId)}
+                          disabled={aiLoading[qId]}
+                          className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-50 cursor-pointer transition-colors"
+                        >
+                          {aiLoading[qId] ? (
+                            <span className="flex items-center gap-2">
+                              <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                              Generating AI Explanation...
+                            </span>
+                          ) : (
+                            'Explain with AI'
+                          )}
+                        </button>
+                      ) : (
+                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                          <p className="text-xs font-semibold text-purple-700 mb-2">AI Detailed Explanation</p>
+                          <div className="text-sm text-purple-900 leading-relaxed whitespace-pre-wrap">{aiExplanations[qId]}</div>
+                        </div>
+                      )}
                     </div>
                   )}
 
