@@ -119,6 +119,9 @@ public class RevisionService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Long> questionIds = bookmarkRepository.findQuestionIdsByUserId(userId);
+        if (questionIds.isEmpty()) {
+            throw new BadRequestException("No bookmarked questions found");
+        }
         List<Question> questions = questionRepository.findByIdIn(questionIds);
         Collections.shuffle(questions);
 
@@ -154,6 +157,9 @@ public class RevisionService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Long> dueIds = spacedRepetitionService.getDueQuestionIds(userId);
+        if (dueIds.isEmpty()) {
+            throw new BadRequestException("No questions due for review");
+        }
         List<Long> limitedIds = dueIds.stream().limit(count).collect(Collectors.toList());
 
         List<Question> questions = questionRepository.findByIdIn(limitedIds);
@@ -205,6 +211,10 @@ public class RevisionService {
                 .map(a -> a.getQuestion().getId())
                 .distinct()
                 .collect(Collectors.toList());
+
+        if (questionIds.isEmpty()) {
+            throw new BadRequestException("No incorrect questions found to reattempt");
+        }
 
         List<Question> questions = questionRepository.findByIdIn(questionIds);
         Collections.shuffle(questions);
