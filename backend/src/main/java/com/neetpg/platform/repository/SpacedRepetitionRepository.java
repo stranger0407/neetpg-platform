@@ -1,0 +1,19 @@
+package com.neetpg.platform.repository;
+
+import com.neetpg.platform.entity.SpacedRepetition;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+public interface SpacedRepetitionRepository extends JpaRepository<SpacedRepetition, Long> {
+
+    Optional<SpacedRepetition> findByUserIdAndQuestionId(Long userId, Long questionId);
+
+    @Query("SELECT sr FROM SpacedRepetition sr WHERE sr.user.id = :userId " +
+           "AND sr.nextReviewDate <= :now ORDER BY sr.nextReviewDate ASC")
+    List<SpacedRepetition> findDueForReview(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+}
