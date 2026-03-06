@@ -8,6 +8,8 @@ export default function Result() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [bookmarked, setBookmarked] = useState({});
+  const [aiExplanations, setAiExplanations] = useState({});
+  const [aiLoading, setAiLoading] = useState({});
 
   useEffect(() => {
     const fetchResult = async () => {
@@ -40,6 +42,19 @@ export default function Result() {
         return copy;
       });
     } catch { /* silent */ }
+  };
+
+  const fetchAiExplanation = async (questionId) => {
+    if (aiExplanations[questionId] || aiLoading[questionId]) return;
+    setAiLoading(prev => ({ ...prev, [questionId]: true }));
+    try {
+      const res = await api.get(`/ai/explain/${questionId}`);
+      setAiExplanations(prev => ({ ...prev, [questionId]: res.data.detailedExplanation }));
+    } catch {
+      setAiExplanations(prev => ({ ...prev, [questionId]: 'Failed to load AI explanation. Please try again.' }));
+    } finally {
+      setAiLoading(prev => ({ ...prev, [questionId]: false }));
+    }
   };
 
   if (loading) {
@@ -168,6 +183,30 @@ export default function Result() {
                     <p className="text-sm text-blue-900 leading-relaxed">{q.explanation}</p>
                   </div>
                 )}
+
+                <div className="mt-3 ml-10">
+                  {!aiExplanations[q.id] ? (
+                    <button
+                      onClick={() => fetchAiExplanation(q.id)}
+                      disabled={aiLoading[q.id]}
+                      className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-50 cursor-pointer transition-colors"
+                    >
+                      {aiLoading[q.id] ? (
+                        <span className="flex items-center gap-2">
+                          <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                          Generating AI Explanation...
+                        </span>
+                      ) : (
+                        'Explain with AI'
+                      )}
+                    </button>
+                  ) : (
+                    <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                      <p className="text-xs font-semibold text-purple-700 mb-2">AI Detailed Explanation</p>
+                      <div className="text-sm text-purple-900 leading-relaxed whitespace-pre-wrap">{aiExplanations[q.id]}</div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
