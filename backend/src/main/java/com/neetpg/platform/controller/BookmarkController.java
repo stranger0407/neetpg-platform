@@ -53,6 +53,7 @@ public class BookmarkController {
     }
 
     @GetMapping("/bookmarks")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> getBookmarks(
             @AuthenticationPrincipal UserPrincipal user) {
         List<Bookmark> bookmarks = bookmarkRepository.findByUserId(user.getId());

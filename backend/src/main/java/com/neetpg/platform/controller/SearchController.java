@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,6 +22,7 @@ public class SearchController {
     private final QuestionRepository questionRepository;
 
     @GetMapping
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> search(
             @RequestParam String keyword,
             @RequestParam(required = false) Long subjectId,
