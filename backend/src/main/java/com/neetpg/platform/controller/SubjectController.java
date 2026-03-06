@@ -30,7 +30,7 @@ public class SubjectController {
             Map<String, Object> map = new HashMap<>();
             map.put("id", s.getId());
             map.put("name", s.getName());
-            map.put("chapterCount", s.getChapters().size());
+            map.put("chapterCount", chapterRepository.countBySubjectId(s.getId()));
             return map;
         }).collect(Collectors.toList());
         return ResponseEntity.ok(result);

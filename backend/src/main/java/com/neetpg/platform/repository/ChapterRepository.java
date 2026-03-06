@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     List<Chapter> findBySubjectId(Long subjectId);
+    long countBySubjectId(Long subjectId);
 }
