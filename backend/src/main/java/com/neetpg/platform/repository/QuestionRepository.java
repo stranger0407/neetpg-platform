@@ -37,19 +37,35 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q WHERE q.id IN :ids")
     List<Question> findByIdIn(@Param("ids") List<Long> ids);
 
-    @Query("SELECT q FROM Question q WHERE LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) " +
-           "OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))")
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) " +
+           "OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))")
     Page<Question> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT q FROM Question q WHERE q.chapter.subject.id = :subjectId " +
-           "AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%')))")
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE c.subject.id = :subjectId " +
+           "AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%')))",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE q.chapter.subject.id = :subjectId AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%')))")
     Page<Question> searchByKeywordAndSubject(@Param("keyword") String keyword,
                                               @Param("subjectId") Long subjectId,
                                               Pageable pageable);
 
-    @Query("SELECT q FROM Question q WHERE (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty")
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty")
     Page<Question> searchByKeywordAndDifficulty(@Param("keyword") String keyword, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
 
-    @Query("SELECT q FROM Question q WHERE q.chapter.subject.id = :subjectId AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty")
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE c.subject.id = :subjectId AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE q.chapter.subject.id = :subjectId AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty")
     Page<Question> searchByKeywordAndSubjectAndDifficulty(@Param("keyword") String keyword, @Param("subjectId") Long subjectId, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
+
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE c.subject.id = :subjectId",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE q.chapter.subject.id = :subjectId")
+    Page<Question> findBySubject(@Param("subjectId") Long subjectId, Pageable pageable);
+
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE q.difficulty = :difficulty",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE q.difficulty = :difficulty")
+    Page<Question> findByDifficulty(@Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
+
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE c.subject.id = :subjectId AND q.difficulty = :difficulty",
+           countQuery = "SELECT COUNT(q) FROM Question q WHERE q.chapter.subject.id = :subjectId AND q.difficulty = :difficulty")
+    Page<Question> findBySubjectAndDifficulty(@Param("subjectId") Long subjectId, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
 }

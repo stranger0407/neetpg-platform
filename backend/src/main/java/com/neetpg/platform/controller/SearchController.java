@@ -24,7 +24,7 @@ public class SearchController {
     @GetMapping
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> search(
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long subjectId,
             @RequestParam(required = false) String difficulty,
             @RequestParam(defaultValue = "0") int page,
@@ -34,16 +34,34 @@ public class SearchController {
         int clampedSize = Math.min(size, 100);
         PageRequest pageRequest = PageRequest.of(page, clampedSize);
 
-        if (subjectId != null && difficulty != null && !difficulty.isBlank()) {
-            results = questionRepository.searchByKeywordAndSubjectAndDifficulty(
-                keyword, subjectId, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
-        } else if (subjectId != null) {
-            results = questionRepository.searchByKeywordAndSubject(keyword, subjectId, pageRequest);
-        } else if (difficulty != null && !difficulty.isBlank()) {
-            results = questionRepository.searchByKeywordAndDifficulty(
-                keyword, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasSubject = subjectId != null;
+        boolean hasDifficulty = difficulty != null && !difficulty.isBlank();
+
+        if (hasKeyword) {
+            if (hasSubject && hasDifficulty) {
+                results = questionRepository.searchByKeywordAndSubjectAndDifficulty(
+                    keyword, subjectId, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
+            } else if (hasSubject) {
+                results = questionRepository.searchByKeywordAndSubject(keyword, subjectId, pageRequest);
+            } else if (hasDifficulty) {
+                results = questionRepository.searchByKeywordAndDifficulty(
+                    keyword, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
+            } else {
+                results = questionRepository.searchByKeyword(keyword, pageRequest);
+            }
         } else {
-            results = questionRepository.searchByKeyword(keyword, pageRequest);
+            if (hasSubject && hasDifficulty) {
+                results = questionRepository.findBySubjectAndDifficulty(
+                    subjectId, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
+            } else if (hasSubject) {
+                results = questionRepository.findBySubject(subjectId, pageRequest);
+            } else if (hasDifficulty) {
+                results = questionRepository.findByDifficulty(
+                    Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("message", "Please provide a keyword or select a filter"));
+            }
         }
 
         List<Map<String, Object>> questions = results.getContent().stream().map(q -> {

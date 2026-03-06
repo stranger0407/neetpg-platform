@@ -31,14 +31,14 @@ export default function Search() {
   }, []);
 
   const doSearch = async (pageNum = 0) => {
-    if (!keyword.trim()) return;
+    if (!keyword.trim() && !subjectId && !difficulty) return;
 
     setLoading(true);
     setError('');
     setSearched(true);
     try {
       const params = new URLSearchParams();
-      params.set('keyword', keyword.trim());
+      if (keyword.trim()) params.set('keyword', keyword.trim());
       params.set('page', pageNum);
       params.set('size', '20');
       if (subjectId) params.set('subjectId', subjectId);
@@ -90,7 +90,7 @@ export default function Search() {
               </div>
               <button
                 type="submit"
-                disabled={loading || !keyword.trim()}
+                disabled={loading || (!keyword.trim() && !subjectId && !difficulty)}
                 className="px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition-colors"
               >
                 {loading ? 'Searching...' : 'Search'}
