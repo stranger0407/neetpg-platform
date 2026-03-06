@@ -53,7 +53,7 @@ export default function Dashboard() {
   const stats = [
     {
       label: 'Total Attempted',
-      value: data?.totalAttempted ?? 0,
+      value: data?.overallStats?.totalAttempted ?? 0,
       color: 'bg-blue-50 text-blue-700',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@ export default function Dashboard() {
     },
     {
       label: 'Correct Answers',
-      value: data?.totalCorrect ?? 0,
+      value: data?.overallStats?.correctAnswers ?? 0,
       color: 'bg-green-50 text-green-700',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +73,7 @@ export default function Dashboard() {
     },
     {
       label: 'Accuracy',
-      value: `${data?.accuracy ?? 0}%`,
+      value: `${data?.overallStats?.accuracy ?? 0}%`,
       color: 'bg-indigo-50 text-indigo-700',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,7 +83,7 @@ export default function Dashboard() {
     },
     {
       label: 'Total Marks',
-      value: data?.totalMarks ?? 0,
+      value: data?.overallStats?.totalMarks ?? 0,
       color: 'bg-amber-50 text-amber-700',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,9 +155,9 @@ export default function Dashboard() {
             {/* Questions Due */}
             <div className="bg-white rounded-xl border border-gray-100 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-2">Due for Review</h2>
-              <p className="text-4xl font-bold text-indigo-600">{data?.questionsDueForReview ?? 0}</p>
+              <p className="text-4xl font-bold text-indigo-600">{data?.questionsForReview ?? 0}</p>
               <p className="text-sm text-gray-500 mt-1">Questions scheduled for revision</p>
-              {(data?.questionsDueForReview ?? 0) > 0 && (
+              {(data?.questionsForReview ?? 0) > 0 && (
                 <Link
                   to="/bookmarks"
                   className="mt-4 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-700"

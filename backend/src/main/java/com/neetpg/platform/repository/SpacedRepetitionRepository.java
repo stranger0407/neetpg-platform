@@ -16,4 +16,12 @@ public interface SpacedRepetitionRepository extends JpaRepository<SpacedRepetiti
     @Query("SELECT sr FROM SpacedRepetition sr WHERE sr.user.id = :userId " +
            "AND sr.nextReviewDate <= :now ORDER BY sr.nextReviewDate ASC")
     List<SpacedRepetition> findDueForReview(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+
+    @Query("SELECT sr.question.id FROM SpacedRepetition sr WHERE sr.user.id = :userId " +
+           "AND sr.nextReviewDate <= :now ORDER BY sr.nextReviewDate ASC")
+    List<Long> findDueQuestionIds(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+
+    @Query("SELECT COUNT(sr) FROM SpacedRepetition sr WHERE sr.user.id = :userId " +
+           "AND sr.nextReviewDate <= :now")
+    int countDueForReview(@Param("userId") Long userId, @Param("now") LocalDateTime now);
 }

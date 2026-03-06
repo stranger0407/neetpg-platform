@@ -179,7 +179,7 @@ public class QuizService {
 
         int marks = (correct * 4) - (incorrect * 1);
         int totalAnswered = correct + incorrect + skipped;
-        double accuracy = totalAnswered > 0 ? (correct * 100.0) / (correct + incorrect) : 0;
+        double accuracy = (correct + incorrect) > 0 ? (correct * 100.0) / (correct + incorrect) : 0;
         double avgTime = totalAnswered > 0 ? (double) totalTime / totalAnswered : 0;
 
         session.setCorrect(correct);
@@ -203,6 +203,7 @@ public class QuizService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public QuizDto.QuizResult getQuizResult(Long userId, Long sessionId) {
         QuizSession session = quizSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz session not found"));
@@ -214,7 +215,7 @@ public class QuizService {
             throw new BadRequestException("Quiz not yet submitted");
         }
 
-        List<Attempt> attempts = attemptRepository.findByQuizSessionId(sessionId);
+        List<Attempt> attempts = attemptRepository.findByQuizSessionIdWithQuestion(sessionId);
         Set<Long> bookmarkedIds = new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
 
         List<QuizDto.QuestionWithAnswer> details = attempts.stream()
@@ -258,8 +259,9 @@ public class QuizService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<QuizDto.QuizSessionResponse> getUserSessions(Long userId) {
-        return quizSessionRepository.findByUserIdOrderByStartedAtDesc(userId).stream()
+        return quizSessionRepository.findByUserIdWithChapterOrderByStartedAtDesc(userId).stream()
                 .map(s -> QuizDto.QuizSessionResponse.builder()
                         .id(s.getId())
                         .quizType(s.getQuizType().name())

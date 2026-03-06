@@ -56,13 +56,10 @@ public class SpacedRepetitionService {
     }
 
     public List<Long> getDueQuestionIds(Long userId) {
-        return spacedRepetitionRepository.findDueForReview(userId, LocalDateTime.now())
-                .stream()
-                .map(sr -> sr.getQuestion().getId())
-                .collect(Collectors.toList());
+        return spacedRepetitionRepository.findDueQuestionIds(userId, LocalDateTime.now());
     }
 
     public int getDueCount(Long userId) {
-        return spacedRepetitionRepository.findDueForReview(userId, LocalDateTime.now()).size();
+        return spacedRepetitionRepository.countDueForReview(userId, LocalDateTime.now());
     }
 }

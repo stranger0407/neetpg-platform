@@ -8,10 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     List<Question> findByChapterId(Long chapterId);
+
+    @Query("SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE q.id = :id")
+    Optional<Question> findByIdWithChapterAndSubject(@Param("id") Long id);
+
+    @Query("SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE q.id IN :ids")
+    List<Question> findByIdInWithChapterAndSubject(@Param("ids") List<Long> ids);
 
     long countByChapterId(Long chapterId);
 
@@ -35,14 +42,14 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Page<Question> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT q FROM Question q WHERE q.chapter.subject.id = :subjectId " +
-           "AND LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%'))")
+           "AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%')))")
     Page<Question> searchByKeywordAndSubject(@Param("keyword") String keyword,
                                               @Param("subjectId") Long subjectId,
                                               Pageable pageable);
 
-    @Query("SELECT q FROM Question q WHERE LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) AND q.difficulty = :difficulty")
+    @Query("SELECT q FROM Question q WHERE (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty")
     Page<Question> searchByKeywordAndDifficulty(@Param("keyword") String keyword, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
 
-    @Query("SELECT q FROM Question q WHERE q.chapter.subject.id = :subjectId AND LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) AND q.difficulty = :difficulty")
+    @Query("SELECT q FROM Question q WHERE q.chapter.subject.id = :subjectId AND (LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(q.tags) LIKE LOWER(CONCAT('%',:keyword,'%'))) AND q.difficulty = :difficulty")
     Page<Question> searchByKeywordAndSubjectAndDifficulty(@Param("keyword") String keyword, @Param("subjectId") Long subjectId, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
 }

@@ -10,13 +10,50 @@ export default function MockTest() {
   const [session, setSession] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState({});       // { index: 'A'|'B'|'C'|'D' }
+  const [markedForReview, setMarkedForReview] = useState({}); // { index: true }
   const [bookmarked, setBookmarked] = useState({});
   const [timeLeft, setTimeLeft] = useState(MOCK_TEST_DURATION);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showNav, setShowNav] = useState(false);
   const timerRef = useRef(null);
+  const answersRef = useRef(answers);
+  const questionsRef = useRef(questions);
+  const sessionRef = useRef(session);
+  const phaseRef = useRef(phase);
+
+  // Keep refs in sync
+  useEffect(() => { answersRef.current = answers; }, [answers]);
+  useEffect(() => { questionsRef.current = questions; }, [questions]);
+  useEffect(() => { sessionRef.current = session; }, [session]);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
+
+  // Submit using refs to avoid stale closures
+  const doSubmit = useCallback(async () => {
+    if (phaseRef.current === 'submitting') return;
+    setPhase('submitting');
+    clearInterval(timerRef.current);
+
+    try {
+      const currentAnswers = answersRef.current;
+      const currentQuestions = questionsRef.current;
+      const currentSession = sessionRef.current;
+
+      const formattedAnswers = currentQuestions.map((q, idx) => ({
+        questionId: q.id,
+        selectedAnswer: currentAnswers[idx] || null,
+        timeTaken: 0,
+      }));
+
+      const sessionId = currentSession.sessionId;
+      await api.post(`/quiz/${sessionId}/submit`, { answers: formattedAnswers });
+      navigate(`/result/${sessionId}`);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to submit mock test.');
+      setPhase('quiz');
+    }
+  }, [navigate]);
 
   // Countdown timer
   useEffect(() => {
@@ -25,14 +62,14 @@ export default function MockTest() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
-          handleSubmit();
+          doSubmit();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, [phase]);
+  }, [phase, doSubmit]);
 
   const startMockTest = async () => {
     setLoading(true);
@@ -41,6 +78,12 @@ export default function MockTest() {
       const res = await api.post('/mock-test/start');
       setSession(res.data);
       setQuestions(res.data.questions || []);
+      // Initialize bookmarked state from server data
+      const bm = {};
+      (res.data.questions || []).forEach(q => {
+        if (q.bookmarked) bm[q.id] = true;
+      });
+      setBookmarked(bm);
       setPhase('quiz');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to start mock test.');
@@ -49,41 +92,36 @@ export default function MockTest() {
     }
   };
 
-  const handleSubmit = useCallback(async () => {
-    if (phase === 'submitting') return;
-    setPhase('submitting');
-    clearInterval(timerRef.current);
+  const selectAnswer = (label) => {
+    setAnswers(prev => ({ ...prev, [currentIndex]: label }));
+  };
 
-    try {
-      const formattedAnswers = questions.map((q, idx) => ({
-        questionId: q._id || q.id,
-        selectedOption: answers[idx] !== undefined ? answers[idx] : null,
-        timeTaken: 0,
-      }));
+  const clearAnswer = () => {
+    setAnswers(prev => {
+      const next = { ...prev };
+      delete next[currentIndex];
+      return next;
+    });
+  };
 
-      const sessionId = session.sessionId || session._id || session.id;
-      await api.post(`/quiz/${sessionId}/submit`, { answers: formattedAnswers });
-      navigate(`/result/${sessionId}`);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit mock test.');
-      setPhase('quiz');
-    }
-  }, [answers, questions, session, navigate, phase]);
-
-  const selectAnswer = (optionIndex) => {
-    if (answers[currentIndex] !== undefined) return;
-    setAnswers({ ...answers, [currentIndex]: optionIndex });
+  const toggleReview = () => {
+    setMarkedForReview(prev => {
+      const next = { ...prev };
+      if (next[currentIndex]) delete next[currentIndex];
+      else next[currentIndex] = true;
+      return next;
+    });
   };
 
   const toggleBookmark = async (questionId) => {
     try {
-      if (bookmarked[questionId]) {
-        await api.delete(`/bookmarks/${questionId}`);
-        setBookmarked((prev) => { const c = { ...prev }; delete c[questionId]; return c; });
-      } else {
-        await api.post('/bookmarks', { questionId });
-        setBookmarked((prev) => ({ ...prev, [questionId]: true }));
-      }
+      await api.post(`/bookmarks/${questionId}`);
+      setBookmarked((prev) => {
+        const next = { ...prev };
+        if (next[questionId]) delete next[questionId];
+        else next[questionId] = true;
+        return next;
+      });
     } catch { /* silent */ }
   };
 
@@ -96,6 +134,7 @@ export default function MockTest() {
 
   const optionLabels = ['A', 'B', 'C', 'D'];
   const answeredCount = Object.keys(answers).length;
+  const reviewCount = Object.keys(markedForReview).length;
   const currentQuestion = questions[currentIndex];
 
   // Start screen
@@ -162,6 +201,13 @@ export default function MockTest() {
     );
   }
 
+  const optionFields = [
+    { label: 'A', text: currentQuestion.optionA },
+    { label: 'B', text: currentQuestion.optionB },
+    { label: 'C', text: currentQuestion.optionC },
+    { label: 'D', text: currentQuestion.optionD },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Bar */}
@@ -194,24 +240,21 @@ export default function MockTest() {
             </div>
 
             <button
-              onClick={() => {
-                const qId = currentQuestion._id || currentQuestion.id;
-                toggleBookmark(qId);
-              }}
+              onClick={() => toggleBookmark(currentQuestion.id)}
               className={`p-2 rounded-lg cursor-pointer ${
-                bookmarked[currentQuestion._id || currentQuestion.id]
+                bookmarked[currentQuestion.id]
                   ? 'text-amber-500 bg-amber-50'
                   : 'text-gray-400 hover:bg-gray-100'
               }`}
             >
-              <svg className="w-5 h-5" fill={bookmarked[currentQuestion._id || currentQuestion.id] ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill={bookmarked[currentQuestion.id] ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
             </button>
 
             <button
               onClick={() => {
-                if (window.confirm('Are you sure you want to submit the mock test?')) handleSubmit();
+                if (window.confirm('Are you sure you want to submit the mock test?')) doSubmit();
               }}
               disabled={phase === 'submitting'}
               className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 cursor-pointer"
@@ -238,6 +281,7 @@ export default function MockTest() {
               {questions.map((_, idx) => {
                 let cls = 'bg-gray-100 text-gray-600';
                 if (idx === currentIndex) cls = 'bg-indigo-600 text-white ring-2 ring-indigo-300';
+                else if (markedForReview[idx]) cls = 'bg-amber-100 text-amber-700 ring-1 ring-amber-300';
                 else if (answers[idx] !== undefined) cls = 'bg-green-100 text-green-700';
                 return (
                   <button
@@ -251,8 +295,9 @@ export default function MockTest() {
               })}
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 space-y-1">
-              <p>Answered: {answeredCount}</p>
-              <p>Remaining: {questions.length - answeredCount}</p>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-green-100 border border-green-300"></span> Answered: {answeredCount}</div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span> Review: {reviewCount}</div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-gray-100 border border-gray-300"></span> Remaining: {questions.length - answeredCount}</div>
             </div>
           </div>
         </div>
@@ -274,6 +319,7 @@ export default function MockTest() {
                 {questions.map((_, idx) => {
                   let cls = 'bg-gray-100 text-gray-600';
                   if (idx === currentIndex) cls = 'bg-indigo-600 text-white';
+                  else if (markedForReview[idx]) cls = 'bg-amber-100 text-amber-700';
                   else if (answers[idx] !== undefined) cls = 'bg-green-100 text-green-700';
                   return (
                     <button
@@ -297,34 +343,43 @@ export default function MockTest() {
           )}
 
           <div className="bg-white rounded-xl border border-gray-100 p-6 sm:p-8">
-            <span className="inline-block px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-md mb-4">
-              Question {currentIndex + 1}
-            </span>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="inline-block px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-md">
+                Question {currentIndex + 1}
+              </span>
+              {currentQuestion.difficulty && (
+                <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-md ${
+                  currentQuestion.difficulty === 'EASY' ? 'bg-green-50 text-green-700' :
+                  currentQuestion.difficulty === 'HARD' ? 'bg-red-50 text-red-700' :
+                  'bg-yellow-50 text-yellow-700'
+                }`}>{currentQuestion.difficulty}</span>
+              )}
+              {markedForReview[currentIndex] && (
+                <span className="inline-block px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded-md">Marked for Review</span>
+              )}
+            </div>
             <p className="text-gray-900 text-lg leading-relaxed whitespace-pre-wrap mb-8">
-              {currentQuestion.questionText || currentQuestion.question}
+              {currentQuestion.questionText}
             </p>
 
             <div className="space-y-3">
-              {(currentQuestion.options || []).map((option, idx) => {
-                const isSelected = answers[currentIndex] === idx;
+              {optionFields.map(({ label, text }) => {
+                const isSelected = answers[currentIndex] === label;
                 let cardClass = 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50';
                 if (isSelected) cardClass = 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500';
 
                 return (
                   <button
-                    key={idx}
-                    onClick={() => selectAnswer(idx)}
-                    disabled={answers[currentIndex] !== undefined}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer disabled:cursor-default flex items-start gap-3 ${cardClass}`}
+                    key={label}
+                    onClick={() => selectAnswer(label)}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer flex items-start gap-3 ${cardClass}`}
                   >
                     <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 ${
                       isSelected ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
-                      {optionLabels[idx]}
+                      {label}
                     </span>
-                    <span className="text-gray-800 pt-1">
-                      {typeof option === 'string' ? option : option.text || option.label}
-                    </span>
+                    <span className="text-gray-800 pt-1">{text}</span>
                   </button>
                 );
               })}
@@ -341,6 +396,24 @@ export default function MockTest() {
               Previous
             </button>
             <div className="flex items-center gap-3">
+              {answers[currentIndex] !== undefined && (
+                <button
+                  onClick={clearAnswer}
+                  className="px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
+              <button
+                onClick={toggleReview}
+                className={`px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
+                  markedForReview[currentIndex]
+                    ? 'text-amber-700 bg-amber-50 border border-amber-300'
+                    : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {markedForReview[currentIndex] ? 'Unmark Review' : 'Review Later'}
+              </button>
               {currentIndex < questions.length - 1 ? (
                 <button
                   onClick={() => setCurrentIndex(currentIndex + 1)}
@@ -351,7 +424,7 @@ export default function MockTest() {
               ) : (
                 <button
                   onClick={() => {
-                    if (window.confirm('Submit mock test?')) handleSubmit();
+                    if (window.confirm('Submit mock test?')) doSubmit();
                   }}
                   disabled={phase === 'submitting'}
                   className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 cursor-pointer"

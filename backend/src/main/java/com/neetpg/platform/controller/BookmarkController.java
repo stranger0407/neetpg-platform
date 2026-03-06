@@ -31,15 +31,16 @@ public class BookmarkController {
     private final UserRepository userRepository;
 
     @PostMapping("/bookmarks/{questionId}")
+    @Transactional
     public ResponseEntity<Map<String, Object>> toggleBookmark(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long questionId) {
         Long userId = userPrincipal.getId();
         Map<String, Object> result = new HashMap<>();
 
-        if (bookmarkRepository.existsByUserIdAndQuestionId(userId, questionId)) {
-            bookmarkRepository.findByUserIdAndQuestionId(userId, questionId)
-                    .ifPresent(bookmarkRepository::delete);
+        var existing = bookmarkRepository.findByUserIdAndQuestionId(userId, questionId);
+        if (existing.isPresent()) {
+            bookmarkRepository.delete(existing.get());
             result.put("bookmarked", false);
         } else {
             User user = userRepository.findById(userId).orElseThrow();
@@ -78,7 +79,8 @@ public class BookmarkController {
     }
 
     @PostMapping("/notes")
-    public ResponseEntity<UserNote> saveNote(
+    @Transactional
+    public ResponseEntity<Map<String, Object>> saveNote(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody NoteRequest request) {
         Long userId = userPrincipal.getId();
@@ -90,16 +92,33 @@ public class BookmarkController {
                     return UserNote.builder().user(user).question(question).build();
                 });
         note.setNoteText(request.getNoteText());
-        return ResponseEntity.ok(userNoteRepository.save(note));
+        UserNote saved = userNoteRepository.save(note);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", saved.getId());
+        result.put("questionId", saved.getQuestion().getId());
+        result.put("noteText", saved.getNoteText());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/notes")
-    public ResponseEntity<List<UserNote>> getNotes(
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getNotes(
             @AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(userNoteRepository.findByUserId(user.getId()));
+        List<UserNote> notes = userNoteRepository.findByUserId(user.getId());
+        List<Map<String, Object>> result = notes.stream().map(n -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", n.getId());
+            map.put("questionId", n.getQuestion().getId());
+            map.put("questionText", n.getQuestion().getQuestionText());
+            map.put("noteText", n.getNoteText());
+            return map;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/notes/{noteId}")
+    @Transactional
     public ResponseEntity<Void> deleteNote(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long noteId) {

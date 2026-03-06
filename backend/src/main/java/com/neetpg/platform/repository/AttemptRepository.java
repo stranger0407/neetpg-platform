@@ -16,6 +16,9 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
 
     List<Attempt> findByQuizSessionId(Long quizSessionId);
 
+    @Query("SELECT a FROM Attempt a JOIN FETCH a.question WHERE a.quizSession.id = :quizSessionId")
+    List<Attempt> findByQuizSessionIdWithQuestion(@Param("quizSessionId") Long quizSessionId);
+
     List<Attempt> findByQuizSessionIdAndIsCorrect(Long quizSessionId, boolean isCorrect);
 
     long countByUserId(Long userId);

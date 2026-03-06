@@ -2,6 +2,7 @@ package com.neetpg.platform.service;
 
 import com.neetpg.platform.dto.QuizDto;
 import com.neetpg.platform.entity.*;
+import com.neetpg.platform.exception.BadRequestException;
 import com.neetpg.platform.exception.ResourceNotFoundException;
 import com.neetpg.platform.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -191,6 +192,13 @@ public class RevisionService {
     public Map<String, Object> reattemptIncorrect(Long userId, Long sessionId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Verify session belongs to the requesting user
+        QuizSession originalSession = quizSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz session not found"));
+        if (!originalSession.getUser().getId().equals(userId)) {
+            throw new BadRequestException("Unauthorized access to quiz session");
+        }
 
         List<Attempt> incorrectAttempts = attemptRepository.findByQuizSessionIdAndIsCorrect(sessionId, false);
         List<Long> questionIds = incorrectAttempts.stream()

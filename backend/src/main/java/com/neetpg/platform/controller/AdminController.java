@@ -4,6 +4,7 @@ import com.neetpg.platform.dto.QuestionDto;
 import com.neetpg.platform.entity.Chapter;
 import com.neetpg.platform.entity.Subject;
 import com.neetpg.platform.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +24,14 @@ public class AdminController {
 
     @PostMapping("/questions")
     public ResponseEntity<QuestionDto.AdminQuestionResponse> createQuestion(
-            @RequestBody QuestionDto.CreateRequest request) {
+            @Valid @RequestBody QuestionDto.CreateRequest request) {
         return ResponseEntity.ok(adminService.createQuestion(request));
     }
 
     @PutMapping("/questions/{id}")
     public ResponseEntity<QuestionDto.AdminQuestionResponse> updateQuestion(
             @PathVariable Long id,
-            @RequestBody QuestionDto.CreateRequest request) {
+            @Valid @RequestBody QuestionDto.CreateRequest request) {
         return ResponseEntity.ok(adminService.updateQuestion(id, request));
     }
 

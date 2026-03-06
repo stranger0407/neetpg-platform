@@ -12,6 +12,10 @@ public interface QuizSessionRepository extends JpaRepository<QuizSession, Long> 
 
     List<QuizSession> findByUserIdOrderByStartedAtDesc(Long userId);
 
+    @Query("SELECT qs FROM QuizSession qs LEFT JOIN FETCH qs.chapter c LEFT JOIN FETCH c.subject " +
+           "WHERE qs.user.id = :userId ORDER BY qs.startedAt DESC")
+    List<QuizSession> findByUserIdWithChapterOrderByStartedAtDesc(@Param("userId") Long userId);
+
     List<QuizSession> findByUserIdAndQuizType(Long userId, QuizSession.QuizType quizType);
 
     @Query("SELECT qs FROM QuizSession qs WHERE qs.user.id = :userId AND qs.completed = true " +

@@ -7,6 +7,7 @@ import com.neetpg.platform.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,10 +21,11 @@ public class AIController {
     private final QuestionRepository questionRepository;
 
     @GetMapping("/explain/{questionId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> getExplanation(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long questionId) {
-        Question q = questionRepository.findById(questionId)
+        Question q = questionRepository.findByIdWithChapterAndSubject(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
         Map<String, Object> result = new HashMap<>();
@@ -34,13 +36,14 @@ public class AIController {
     }
 
     @PostMapping("/tutor")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> askTutor(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> request) {
         Long questionId = Long.valueOf(request.get("questionId").toString());
         String query = (String) request.get("query");
 
-        Question q = questionRepository.findById(questionId)
+        Question q = questionRepository.findByIdWithChapterAndSubject(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
         Map<String, Object> result = new HashMap<>();

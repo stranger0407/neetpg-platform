@@ -6,10 +6,14 @@ import com.neetpg.platform.entity.Subject;
 import com.neetpg.platform.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,9 @@ public class AnalyticsService {
         long incorrect = attemptRepository.countByUserIdAndIsCorrect(userId, false);
         Double avgTime = attemptRepository.getAverageTimeTaken(userId);
 
+        // Note: skipped questions have isCorrect=false and null/blank selectedAnswer.
+        // Since we can't distinguish them at DB level, skipped is always 0 in overall stats.
+        // Accurate skipped counts are stored per-session in QuizSession entity.
         double accuracy = (correct + incorrect) > 0 ? (correct * 100.0) / (correct + incorrect) : 0;
         int marks = (int) ((correct * 4) - (incorrect * 1));
 
@@ -40,9 +47,15 @@ public class AnalyticsService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<AnalyticsDto.ChapterStat> getChapterStats(Long userId) {
         List<Object[]> stats = attemptRepository.getChapterWiseStats(userId);
         List<AnalyticsDto.ChapterStat> result = new ArrayList<>();
+
+        // Batch-load all chapters to avoid N+1
+        List<Long> chapterIds = stats.stream().map(row -> (Long) row[0]).collect(Collectors.toList());
+        Map<Long, Chapter> chapterMap = chapterRepository.findAllById(chapterIds).stream()
+                .collect(Collectors.toMap(Chapter::getId, Function.identity()));
 
         for (Object[] row : stats) {
             Long chapterId = (Long) row[0];
@@ -50,7 +63,7 @@ public class AnalyticsService {
             long correct = (Long) row[2];
             double accuracy = total > 0 ? (correct * 100.0) / total : 0;
 
-            Chapter chapter = chapterRepository.findById(chapterId).orElse(null);
+            Chapter chapter = chapterMap.get(chapterId);
             if (chapter == null) continue;
 
             String strength;
@@ -71,9 +84,15 @@ public class AnalyticsService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public List<AnalyticsDto.SubjectStat> getSubjectStats(Long userId) {
         List<Object[]> stats = attemptRepository.getSubjectWiseStats(userId);
         List<AnalyticsDto.SubjectStat> result = new ArrayList<>();
+
+        // Batch-load all subjects to avoid N+1
+        List<Long> subjectIds = stats.stream().map(row -> (Long) row[0]).collect(Collectors.toList());
+        Map<Long, Subject> subjectMap = subjectRepository.findAllById(subjectIds).stream()
+                .collect(Collectors.toMap(Subject::getId, Function.identity()));
 
         for (Object[] row : stats) {
             Long subjectId = (Long) row[0];
@@ -81,7 +100,7 @@ public class AnalyticsService {
             long correct = (Long) row[2];
             double accuracy = total > 0 ? (correct * 100.0) / total : 0;
 
-            Subject subject = subjectRepository.findById(subjectId).orElse(null);
+            Subject subject = subjectMap.get(subjectId);
             if (subject == null) continue;
 
             result.add(AnalyticsDto.SubjectStat.builder()
@@ -116,6 +135,7 @@ public class AnalyticsService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public AnalyticsDto.DashboardData getDashboard(Long userId) {
         AnalyticsDto.OverallStats overall = getOverallStats(userId);
         List<AnalyticsDto.SubjectStat> subjectStats = getSubjectStats(userId);

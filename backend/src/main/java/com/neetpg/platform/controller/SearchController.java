@@ -31,7 +31,8 @@ public class SearchController {
             @RequestParam(defaultValue = "20") int size) {
 
         Page<Question> results;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        int clampedSize = Math.min(size, 100);
+        PageRequest pageRequest = PageRequest.of(page, clampedSize);
 
         if (subjectId != null && difficulty != null && !difficulty.isBlank()) {
             results = questionRepository.searchByKeywordAndSubjectAndDifficulty(
