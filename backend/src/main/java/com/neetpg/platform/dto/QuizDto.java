@@ -1,5 +1,6 @@
 package com.neetpg.platform.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,6 +43,7 @@ public class QuizDto {
         private String explanation;
         private String difficulty;
         private String selectedAnswer;
+        @JsonProperty("isCorrect")
         private boolean isCorrect;
         private Integer timeTaken;
         private boolean bookmarked;

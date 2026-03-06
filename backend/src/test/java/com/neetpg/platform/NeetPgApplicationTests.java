@@ -122,6 +122,51 @@ class NeetPgApplicationTests {
     }
 
     @Test
+    @Order(10)
+    void testQuizStartSubmitAndResult() throws Exception {
+        if (authToken == null) {
+            testRegister();
+        }
+
+        // Start a quiz
+        MvcResult startResult = mockMvc.perform(post("/api/quiz/start")
+                .header("Authorization", "Bearer " + authToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"quizType\":\"RANDOM\",\"questionCount\":2}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sessionId").exists())
+                .andExpect(jsonPath("$.questions").isArray())
+                .andReturn();
+
+        String startJson = startResult.getResponse().getContentAsString();
+        var root = objectMapper.readTree(startJson);
+        long sessionId = root.get("sessionId").asLong();
+        var questions = root.get("questions");
+        long q1Id = questions.get(0).get("id").asLong();
+        long q2Id = questions.get(1).get("id").asLong();
+
+        // Submit the quiz
+        String submitBody = String.format(
+                "{\"answers\":[{\"questionId\":%d,\"selectedAnswer\":\"A\",\"timeTaken\":10},{\"questionId\":%d,\"selectedAnswer\":\"B\",\"timeTaken\":15}]}",
+                q1Id, q2Id);
+
+        mockMvc.perform(post("/api/quiz/" + sessionId + "/submit")
+                .header("Authorization", "Bearer " + authToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(submitBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sessionId").value(sessionId))
+                .andExpect(jsonPath("$.totalQuestions").value(2));
+
+        // Get quiz result (this is the endpoint that was returning 500)
+        mockMvc.perform(get("/api/quiz/" + sessionId + "/result")
+                .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sessionId").value(sessionId))
+                .andExpect(jsonPath("$.questionDetails").isArray());
+    }
+
+    @Test
     @Order(9)
     void testValidationErrors() throws Exception {
         AuthDto.RegisterRequest request = new AuthDto.RegisterRequest();

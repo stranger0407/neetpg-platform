@@ -33,6 +33,7 @@ public class AdminService {
     private final ChapterRepository chapterRepository;
     private final SubjectRepository subjectRepository;
 
+    @Transactional
     public QuestionDto.AdminQuestionResponse createQuestion(QuestionDto.CreateRequest request) {
         Chapter chapter = chapterRepository.findById(request.getChapterId())
                 .orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
@@ -58,6 +59,7 @@ public class AdminService {
         return mapToAdminResponse(question);
     }
 
+    @Transactional
     public QuestionDto.AdminQuestionResponse updateQuestion(Long id, QuestionDto.CreateRequest request) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
@@ -86,6 +88,7 @@ public class AdminService {
         return mapToAdminResponse(question);
     }
 
+    @Transactional
     public void deleteQuestion(Long id) {
         if (!questionRepository.existsById(id)) {
             throw new ResourceNotFoundException("Question not found");
