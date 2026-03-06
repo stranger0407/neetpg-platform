@@ -31,8 +31,14 @@ public class SearchController {
         Page<Question> results;
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        if (subjectId != null) {
+        if (subjectId != null && difficulty != null && !difficulty.isBlank()) {
+            results = questionRepository.searchByKeywordAndSubjectAndDifficulty(
+                keyword, subjectId, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
+        } else if (subjectId != null) {
             results = questionRepository.searchByKeywordAndSubject(keyword, subjectId, pageRequest);
+        } else if (difficulty != null && !difficulty.isBlank()) {
+            results = questionRepository.searchByKeywordAndDifficulty(
+                keyword, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
         } else {
             results = questionRepository.searchByKeyword(keyword, pageRequest);
         }
@@ -41,6 +47,12 @@ public class SearchController {
             Map<String, Object> map = new HashMap<>();
             map.put("id", q.getId());
             map.put("questionText", q.getQuestionText());
+            map.put("optionA", q.getOptionA());
+            map.put("optionB", q.getOptionB());
+            map.put("optionC", q.getOptionC());
+            map.put("optionD", q.getOptionD());
+            map.put("correctAnswer", q.getCorrectAnswer());
+            map.put("explanation", q.getExplanation());
             map.put("difficulty", q.getDifficulty().name());
             map.put("chapterName", q.getChapter().getName());
             map.put("subjectName", q.getChapter().getSubject().getName());

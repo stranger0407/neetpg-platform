@@ -146,4 +146,87 @@ public class RevisionService {
         result.put("questions", questionResponses);
         return result;
     }
+
+    @Transactional
+    public Map<String, Object> getDueReviewQuiz(Long userId, int count) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Long> dueIds = spacedRepetitionService.getDueQuestionIds(userId);
+        List<Long> limitedIds = dueIds.stream().limit(count).collect(Collectors.toList());
+
+        List<Question> questions = questionRepository.findByIdIn(limitedIds);
+        Collections.shuffle(questions);
+
+        QuizSession session = QuizSession.builder()
+                .user(user)
+                .quizType(QuizSession.QuizType.REVISION)
+                .totalQuestions(questions.size())
+                .build();
+        session = quizSessionRepository.save(session);
+
+        Set<Long> bookmarkedIds = new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
+
+        List<QuizDto.QuestionResponse> questionResponses = questions.stream()
+                .map(q -> QuizDto.QuestionResponse.builder()
+                        .id(q.getId())
+                        .questionText(q.getQuestionText())
+                        .optionA(q.getOptionA())
+                        .optionB(q.getOptionB())
+                        .optionC(q.getOptionC())
+                        .optionD(q.getOptionD())
+                        .difficulty(q.getDifficulty().name())
+                        .tags(q.getTags())
+                        .bookmarked(bookmarkedIds.contains(q.getId()))
+                        .build())
+                .collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", session.getId());
+        result.put("questions", questionResponses);
+        return result;
+    }
+
+    @Transactional
+    public Map<String, Object> reattemptIncorrect(Long userId, Long sessionId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Attempt> incorrectAttempts = attemptRepository.findByQuizSessionIdAndIsCorrect(sessionId, false);
+        List<Long> questionIds = incorrectAttempts.stream()
+                .map(a -> a.getQuestion().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Question> questions = questionRepository.findByIdIn(questionIds);
+        Collections.shuffle(questions);
+
+        QuizSession session = QuizSession.builder()
+                .user(user)
+                .quizType(QuizSession.QuizType.REVISION)
+                .totalQuestions(questions.size())
+                .build();
+        session = quizSessionRepository.save(session);
+
+        Set<Long> bookmarkedIds = new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
+
+        List<QuizDto.QuestionResponse> questionResponses = questions.stream()
+                .map(q -> QuizDto.QuestionResponse.builder()
+                        .id(q.getId())
+                        .questionText(q.getQuestionText())
+                        .optionA(q.getOptionA())
+                        .optionB(q.getOptionB())
+                        .optionC(q.getOptionC())
+                        .optionD(q.getOptionD())
+                        .difficulty(q.getDifficulty().name())
+                        .tags(q.getTags())
+                        .bookmarked(bookmarkedIds.contains(q.getId()))
+                        .build())
+                .collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", session.getId());
+        result.put("questions", questionResponses);
+        return result;
+    }
 }

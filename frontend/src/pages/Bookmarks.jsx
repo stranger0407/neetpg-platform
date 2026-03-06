@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function Bookmarks() {
-  const navigate = useNavigate();
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedIds, setExpandedIds] = useState(new Set());
+  const [highlights, setHighlights] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('neetpg_highlights') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const optionLabels = ['A', 'B', 'C', 'D'];
+  const optionKeys = ['optionA', 'optionB', 'optionC', 'optionD'];
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -24,23 +33,85 @@ export default function Bookmarks() {
 
   const removeBookmark = async (questionId) => {
     try {
-      await api.delete(`/bookmarks/${questionId}`);
-      setBookmarks((prev) => prev.filter((b) => (b.questionId || b._id || b.id) !== questionId));
+      await api.post(`/bookmarks/${questionId}`);
+      setBookmarks((prev) => prev.filter((b) => b.questionId !== questionId));
     } catch {
       // silently fail
     }
   };
 
-  const practiceBookmarks = () => {
-    const ids = bookmarks.map((b) => b.questionId || b._id || b.id).join(',');
-    const params = new URLSearchParams({
-      quizType: 'bookmark',
-      questionIds: ids,
+  const toggleExpand = (id) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
-    navigate(`/quiz?${params.toString()}`);
   };
 
-  const optionLabels = ['A', 'B', 'C', 'D'];
+  const handleHighlight = (questionId) => {
+    const sel = window.getSelection();
+    const text = sel?.toString().trim();
+    if (!text) return;
+
+    setHighlights((prev) => {
+      const qHighlights = prev[questionId] || [];
+      if (qHighlights.includes(text)) return prev;
+      const next = { ...prev, [questionId]: [...qHighlights, text] };
+      localStorage.setItem('neetpg_highlights', JSON.stringify(next));
+      return next;
+    });
+    sel.removeAllRanges();
+  };
+
+  const removeHighlight = (questionId, text) => {
+    setHighlights((prev) => {
+      const qHighlights = (prev[questionId] || []).filter((h) => h !== text);
+      const next = { ...prev };
+      if (qHighlights.length === 0) delete next[questionId];
+      else next[questionId] = qHighlights;
+      localStorage.setItem('neetpg_highlights', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const renderHighlighted = (text, questionId) => {
+    const qHighlights = highlights[questionId] || [];
+    if (qHighlights.length === 0) return text;
+
+    let result = text;
+    const parts = [];
+    let lastIndex = 0;
+
+    // Find all highlight positions
+    const positions = [];
+    for (const h of qHighlights) {
+      let idx = result.indexOf(h);
+      while (idx !== -1) {
+        positions.push({ start: idx, end: idx + h.length, text: h });
+        idx = result.indexOf(h, idx + 1);
+      }
+    }
+    positions.sort((a, b) => a.start - b.start);
+
+    // Build highlighted spans
+    for (const pos of positions) {
+      if (pos.start < lastIndex) continue;
+      if (pos.start > lastIndex) {
+        parts.push(<span key={lastIndex}>{result.slice(lastIndex, pos.start)}</span>);
+      }
+      parts.push(
+        <mark key={pos.start} className="bg-yellow-200 px-0.5 rounded">
+          {result.slice(pos.start, pos.end)}
+        </mark>
+      );
+      lastIndex = pos.end;
+    }
+    if (lastIndex < result.length) {
+      parts.push(<span key={lastIndex}>{result.slice(lastIndex)}</span>);
+    }
+    return parts.length > 0 ? parts : text;
+  };
 
   if (loading) {
     return (
@@ -79,14 +150,10 @@ export default function Bookmarks() {
               {bookmarks.length} bookmarked question{bookmarks.length !== 1 ? 's' : ''}
             </p>
           </div>
-          {bookmarks.length > 0 && (
-            <button
-              onClick={practiceBookmarks}
-              className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
-            >
-              Practice All
-            </button>
-          )}
+        </div>
+
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+          Select text in explanations to highlight it. Highlights are saved locally.
         </div>
 
         {bookmarks.length === 0 ? (
@@ -102,17 +169,18 @@ export default function Bookmarks() {
         ) : (
           <div className="space-y-4">
             {bookmarks.map((bookmark) => {
-              const q = bookmark.question || bookmark;
-              const questionId = bookmark.questionId || q._id || q.id;
+              const qId = bookmark.questionId;
+              const isExpanded = expandedIds.has(qId);
+              const qHighlights = highlights[qId] || [];
 
               return (
-                <div key={questionId} className="bg-white rounded-xl border border-gray-100 p-5 sm:p-6">
+                <div key={qId} className="bg-white rounded-xl border border-gray-100 p-5 sm:p-6">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <p className="text-gray-900 leading-relaxed whitespace-pre-wrap">
-                      {q.questionText || q.question}
+                      {bookmark.questionText}
                     </p>
                     <button
-                      onClick={() => removeBookmark(questionId)}
+                      onClick={() => removeBookmark(qId)}
                       className="shrink-0 p-1.5 text-amber-500 hover:text-red-500 rounded-lg cursor-pointer"
                       title="Remove bookmark"
                     >
@@ -122,53 +190,86 @@ export default function Bookmarks() {
                     </button>
                   </div>
 
-                  {q.options && (
-                    <div className="space-y-2 mb-4">
-                      {q.options.map((opt, idx) => {
-                        const optText = typeof opt === 'string' ? opt : opt.text || opt.label;
-                        const isCorrect = idx === (q.correctOption ?? q.correct ?? q.correctAnswer);
-                        return (
-                          <div
-                            key={idx}
-                            className={`flex items-center gap-3 p-2.5 rounded-lg border ${
-                              isCorrect ? 'border-green-300 bg-green-50' : 'border-gray-100 bg-gray-50'
-                            }`}
-                          >
-                            <span className="text-xs font-semibold w-6 text-center text-gray-500">
-                              {optionLabels[idx]}
-                            </span>
-                            <span className="text-sm text-gray-700">{optText}</span>
-                            {isCorrect && (
-                              <svg className="w-4 h-4 text-green-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                  <div className="space-y-2 mb-4">
+                    {optionKeys.map((key, idx) => {
+                      const isCorrect = optionLabels[idx] === bookmark.correctAnswer;
+                      return (
+                        <div
+                          key={key}
+                          className={`flex items-center gap-3 p-2.5 rounded-lg border ${
+                            isExpanded && isCorrect ? 'border-green-300 bg-green-50' :
+                            'border-gray-100 bg-gray-50'
+                          }`}
+                        >
+                          <span className="text-xs font-semibold w-6 text-center text-gray-500">
+                            {optionLabels[idx]}
+                          </span>
+                          <span className="text-sm text-gray-700">{bookmark[key]}</span>
+                          {isExpanded && isCorrect && (
+                            <svg className="w-4 h-4 text-green-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
 
-                  {(q.explanation || q.explanationText) && (
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <button
+                    onClick={() => toggleExpand(qId)}
+                    className="text-sm text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer"
+                  >
+                    {isExpanded ? 'Hide Answer' : 'Show Answer'}
+                  </button>
+
+                  {isExpanded && bookmark.explanation && (
+                    <div
+                      className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                      onMouseUp={() => handleHighlight(qId)}
+                    >
                       <p className="text-xs font-semibold text-blue-700 mb-1">Explanation</p>
-                      <p className="text-sm text-blue-900 leading-relaxed whitespace-pre-wrap">
-                        {q.explanation || q.explanationText}
+                      <p className="text-sm text-blue-900 leading-relaxed whitespace-pre-wrap select-text">
+                        {renderHighlighted(bookmark.explanation, qId)}
                       </p>
                     </div>
                   )}
 
-                  {(q.subject || q.subjectName || q.chapter || q.chapterName) && (
-                    <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
-                      {(q.subject || q.subjectName) && <span>{q.subject || q.subjectName}</span>}
-                      {(q.chapter || q.chapterName) && (
-                        <>
-                          <span>/</span>
-                          <span>{q.chapter || q.chapterName}</span>
-                        </>
-                      )}
+                  {/* Show highlights for this question */}
+                  {qHighlights.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-gray-500 mb-1">Your Highlights</p>
+                      <div className="flex flex-wrap gap-2">
+                        {qHighlights.map((h, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800"
+                          >
+                            {h.length > 40 ? h.slice(0, 40) + '...' : h}
+                            <button
+                              onClick={() => removeHighlight(qId, h)}
+                              className="text-yellow-600 hover:text-red-500 cursor-pointer font-bold"
+                            >
+                              x
+                            </button>
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
+
+                  <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                    {bookmark.subjectName && <span className="px-2 py-1 bg-gray-100 rounded text-gray-600">{bookmark.subjectName}</span>}
+                    {bookmark.chapterName && <span className="px-2 py-1 bg-gray-100 rounded text-gray-600">{bookmark.chapterName}</span>}
+                    {bookmark.difficulty && (
+                      <span className={`px-2 py-1 rounded ${
+                        bookmark.difficulty === 'HARD' ? 'bg-red-100 text-red-600' :
+                        bookmark.difficulty === 'MEDIUM' ? 'bg-amber-100 text-amber-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>
+                        {bookmark.difficulty}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}

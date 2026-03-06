@@ -16,6 +16,8 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
 
     List<Attempt> findByQuizSessionId(Long quizSessionId);
 
+    List<Attempt> findByQuizSessionIdAndIsCorrect(Long quizSessionId, boolean isCorrect);
+
     long countByUserId(Long userId);
 
     long countByUserIdAndIsCorrect(Long userId, boolean isCorrect);
