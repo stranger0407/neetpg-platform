@@ -39,4 +39,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Page<Question> searchByKeywordAndSubject(@Param("keyword") String keyword,
                                               @Param("subjectId") Long subjectId,
                                               Pageable pageable);
+
+    @Query("SELECT q FROM Question q WHERE LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) AND q.difficulty = :difficulty")
+    Page<Question> searchByKeywordAndDifficulty(@Param("keyword") String keyword, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
+
+    @Query("SELECT q FROM Question q WHERE q.chapter.subject.id = :subjectId AND LOWER(q.questionText) LIKE LOWER(CONCAT('%',:keyword,'%')) AND q.difficulty = :difficulty")
+    Page<Question> searchByKeywordAndSubjectAndDifficulty(@Param("keyword") String keyword, @Param("subjectId") Long subjectId, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
 }

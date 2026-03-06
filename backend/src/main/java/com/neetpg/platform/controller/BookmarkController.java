@@ -4,6 +4,7 @@ import com.neetpg.platform.entity.Bookmark;
 import com.neetpg.platform.entity.Question;
 import com.neetpg.platform.entity.User;
 import com.neetpg.platform.entity.UserNote;
+import com.neetpg.platform.exception.BadRequestException;
 import com.neetpg.platform.exception.ResourceNotFoundException;
 import com.neetpg.platform.repository.*;
 import com.neetpg.platform.security.UserPrincipal;
@@ -57,11 +58,19 @@ public class BookmarkController {
         List<Bookmark> bookmarks = bookmarkRepository.findByUserId(user.getId());
         List<Map<String, Object>> result = bookmarks.stream().map(b -> {
             Map<String, Object> map = new HashMap<>();
+            Question q = b.getQuestion();
             map.put("id", b.getId());
-            map.put("questionId", b.getQuestion().getId());
-            map.put("questionText", b.getQuestion().getQuestionText());
-            map.put("chapterName", b.getQuestion().getChapter().getName());
-            map.put("subjectName", b.getQuestion().getChapter().getSubject().getName());
+            map.put("questionId", q.getId());
+            map.put("questionText", q.getQuestionText());
+            map.put("optionA", q.getOptionA());
+            map.put("optionB", q.getOptionB());
+            map.put("optionC", q.getOptionC());
+            map.put("optionD", q.getOptionD());
+            map.put("correctAnswer", q.getCorrectAnswer());
+            map.put("explanation", q.getExplanation());
+            map.put("difficulty", q.getDifficulty().name());
+            map.put("chapterName", q.getChapter().getName());
+            map.put("subjectName", q.getChapter().getSubject().getName());
             return map;
         }).collect(Collectors.toList());
         return ResponseEntity.ok(result);
@@ -87,6 +96,19 @@ public class BookmarkController {
     public ResponseEntity<List<UserNote>> getNotes(
             @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(userNoteRepository.findByUserId(user.getId()));
+    }
+
+    @DeleteMapping("/notes/{noteId}")
+    public ResponseEntity<Void> deleteNote(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long noteId) {
+        UserNote note = userNoteRepository.findById(noteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
+        if (!note.getUser().getId().equals(userPrincipal.getId())) {
+            throw new BadRequestException("Unauthorized");
+        }
+        userNoteRepository.delete(note);
+        return ResponseEntity.noContent().build();
     }
 
     @Data
