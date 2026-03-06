@@ -53,14 +53,14 @@ public class AnalyticsService {
         List<AnalyticsDto.ChapterStat> result = new ArrayList<>();
 
         // Batch-load all chapters to avoid N+1
-        List<Long> chapterIds = stats.stream().map(row -> (Long) row[0]).collect(Collectors.toList());
+        List<Long> chapterIds = stats.stream().map(row -> ((Number) row[0]).longValue()).collect(Collectors.toList());
         Map<Long, Chapter> chapterMap = chapterRepository.findAllById(chapterIds).stream()
                 .collect(Collectors.toMap(Chapter::getId, Function.identity()));
 
         for (Object[] row : stats) {
-            Long chapterId = (Long) row[0];
-            long total = (Long) row[1];
-            long correct = (Long) row[2];
+            Long chapterId = ((Number) row[0]).longValue();
+            long total = ((Number) row[1]).longValue();
+            long correct = ((Number) row[2]).longValue();
             double accuracy = total > 0 ? (correct * 100.0) / total : 0;
 
             Chapter chapter = chapterMap.get(chapterId);
@@ -90,14 +90,14 @@ public class AnalyticsService {
         List<AnalyticsDto.SubjectStat> result = new ArrayList<>();
 
         // Batch-load all subjects to avoid N+1
-        List<Long> subjectIds = stats.stream().map(row -> (Long) row[0]).collect(Collectors.toList());
+        List<Long> subjectIds = stats.stream().map(row -> ((Number) row[0]).longValue()).collect(Collectors.toList());
         Map<Long, Subject> subjectMap = subjectRepository.findAllById(subjectIds).stream()
                 .collect(Collectors.toMap(Subject::getId, Function.identity()));
 
         for (Object[] row : stats) {
-            Long subjectId = (Long) row[0];
-            long total = (Long) row[1];
-            long correct = (Long) row[2];
+            Long subjectId = ((Number) row[0]).longValue();
+            long total = ((Number) row[1]).longValue();
+            long correct = ((Number) row[2]).longValue();
             double accuracy = total > 0 ? (correct * 100.0) / total : 0;
 
             Subject subject = subjectMap.get(subjectId);
@@ -121,8 +121,8 @@ public class AnalyticsService {
 
         for (Object[] row : stats) {
             String date = row[0].toString();
-            long total = (Long) row[1];
-            long correct = (Long) row[2];
+            long total = ((Number) row[1]).longValue();
+            long correct = ((Number) row[2]).longValue();
             double accuracy = total > 0 ? (correct * 100.0) / total : 0;
 
             result.add(AnalyticsDto.DailyStat.builder()
