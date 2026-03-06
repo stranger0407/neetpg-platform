@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["jdk21"]
+
+[phases.install]
+cmds = ["chmod +x backend/mvnw", "cd backend && ./mvnw -B dependency:go-offline"]
+
+[phases.build]
+cmds = ["cd backend && ./mvnw -DskipTests -B clean package"]
+
+[start]
+cmd = "cd backend && java -Dserver.port=$PORT -jar target/*.jar"
