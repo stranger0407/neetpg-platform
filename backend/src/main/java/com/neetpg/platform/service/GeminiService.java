@@ -45,23 +45,47 @@ public class GeminiService {
             default -> "";
         };
 
+        String existingExplanation = q.getExplanation() != null ? q.getExplanation() : "";
+
         String prompt = String.format(
-            "You are a NEET PG medical exam tutor. Explain this MCQ in detail for a medical student.\n\n" +
+            "You are an expert NEET PG medical exam tutor with deep clinical knowledge. " +
+            "A student has already seen a brief general explanation and now wants a MUCH MORE DETAILED, " +
+            "in-depth, point-by-point explanation. Do NOT repeat the general explanation verbatim.\n\n" +
             "Subject: %s | Chapter: %s | Difficulty: %s\n\n" +
             "Question: %s\n\n" +
             "A) %s\nB) %s\nC) %s\nD) %s\n\n" +
             "Correct Answer: %s) %s\n\n" +
-            "Provide a structured explanation with:\n" +
-            "1. **Why the correct answer is right** - explain the medical concept\n" +
-            "2. **Why each wrong option is incorrect** - be specific for each option\n" +
-            "3. **Key concept to remember** - a concise takeaway for revision\n\n" +
-            "Keep it concise but informative. Use simple language suitable for NEET PG preparation.",
+            "General explanation already shown to student: %s\n\n" +
+            "Now provide a COMPREHENSIVE and DETAILED explanation covering ALL of the following sections:\n\n" +
+            "## 1. Detailed Topic Overview\n" +
+            "- Explain the underlying medical concept/topic in depth\n" +
+            "- Cover the relevant pathophysiology, mechanism of action, or clinical basis\n\n" +
+            "## 2. Why Option %s is Correct\n" +
+            "- Give a thorough, step-by-step reasoning for why this is the right answer\n" +
+            "- Include relevant clinical correlations, lab findings, or pathological features\n\n" +
+            "## 3. Why Each Other Option is Wrong\n" +
+            "- **Option A) %s** - Explain specifically why this is incorrect and what condition/concept it actually relates to\n" +
+            "- **Option B) %s** - Explain specifically why this is incorrect\n" +
+            "- **Option C) %s** - Explain specifically why this is incorrect\n" +
+            "- **Option D) %s** - Explain specifically why this is incorrect\n" +
+            "(Skip the correct option from the list above)\n\n" +
+            "## 4. High-Yield Points for NEET PG\n" +
+            "- List 3-5 important points related to this topic that are frequently tested\n" +
+            "- Include any classic presentations, pathognomonic findings, or diagnostic criteria\n\n" +
+            "## 5. Memory Aid / Mnemonic\n" +
+            "- Provide a mnemonic or easy way to remember the key concept\n\n" +
+            "## 6. Related Clinical Scenario\n" +
+            "- Give a brief clinical vignette where this concept would apply\n\n" +
+            "Use markdown formatting with bold, bullet points, and headers. Be thorough and educational.",
             q.getChapter().getSubject().getName(),
             q.getChapter().getName(),
             q.getDifficulty().name(),
             q.getQuestionText(),
             q.getOptionA(), q.getOptionB(), q.getOptionC(), q.getOptionD(),
-            q.getCorrectAnswer(), correctOpt
+            q.getCorrectAnswer(), correctOpt,
+            existingExplanation,
+            q.getCorrectAnswer(),
+            q.getOptionA(), q.getOptionB(), q.getOptionC(), q.getOptionD()
         );
 
         try {
