@@ -16,6 +16,7 @@ export default function Quiz() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showNav, setShowNav] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const timerInterval = useRef(null);
 
   useEffect(() => {
@@ -166,7 +167,7 @@ export default function Quiz() {
               className={`p-2 rounded-lg cursor-pointer transition-colors ${bookmarked[currentQuestion.id] ? 'text-amber-500 bg-amber-50' : 'text-gray-400 hover:bg-gray-100'}`}>
               <svg className="w-5 h-5" fill={bookmarked[currentQuestion.id] ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
             </button>
-            <button onClick={() => { if (window.confirm('Submit quiz?')) submitQuiz(); }} disabled={submitting}
+            <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
               className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 cursor-pointer">
               {submitting ? 'Submitting...' : 'Submit'}
             </button>
@@ -250,7 +251,7 @@ export default function Quiz() {
             <div className="flex items-center gap-3">
               <button onClick={goNext} disabled={currentIndex === questions.length - 1} className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer">Skip</button>
               {currentIndex === questions.length - 1 ? (
-                <button onClick={() => { if (window.confirm('Submit quiz?')) submitQuiz(); }} disabled={submitting}
+                <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
                   className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 cursor-pointer">
                   {submitting ? 'Submitting...' : 'Finish & Submit'}
                 </button>
@@ -261,6 +262,59 @@ export default function Quiz() {
           </div>
         </div>
       </div>
+      {/* Submit Confirmation Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowSubmitModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full mx-4 animate-[fadeIn_0.2s_ease-out]">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Submit Quiz?</h3>
+              <div className="mb-6 space-y-2">
+                <p className="text-sm text-gray-500">You are about to submit your quiz. This action cannot be undone.</p>
+                <div className="flex items-center justify-center gap-6 mt-3">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{answeredCount}</p>
+                    <p className="text-xs text-gray-400">Answered</p>
+                  </div>
+                  <div className="w-px h-10 bg-gray-200" />
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-amber-600">{questions.length - answeredCount}</p>
+                    <p className="text-xs text-gray-400">Unanswered</p>
+                  </div>
+                  <div className="w-px h-10 bg-gray-200" />
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-700">{questions.length}</p>
+                    <p className="text-xs text-gray-400">Total</p>
+                  </div>
+                </div>
+                {questions.length - answeredCount > 0 && (
+                  <p className="text-xs text-red-500 mt-2">You still have {questions.length - answeredCount} unanswered question{questions.length - answeredCount > 1 ? 's' : ''}!</p>
+                )}
+              </div>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => setShowSubmitModal(false)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={() => { setShowSubmitModal(false); submitQuiz(); }}
+                  disabled={submitting}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-colors"
+                >
+                  {submitting ? 'Submitting...' : 'Yes, Submit'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
