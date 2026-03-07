@@ -67,15 +67,35 @@ public class AIController {
             default -> "";
         };
 
-        return String.format(
-            "**Correct Answer: Option %s** - %s\n\n" +
-            "**Explanation:** %s\n\n" +
-            "**Subject:** %s | **Chapter:** %s | **Difficulty:** %s",
-            q.getCorrectAnswer(), correctOpt,
-            q.getExplanation() != null ? q.getExplanation() : "Refer to standard textbooks for detailed explanation.",
-            q.getChapter().getSubject().getName(), q.getChapter().getName(),
-            q.getDifficulty().name()
-        );
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("## Correct Answer: Option %s — %s\n\n", q.getCorrectAnswer(), correctOpt));
+        sb.append(String.format("**Subject:** %s | **Chapter:** %s | **Difficulty:** %s\n\n",
+                q.getChapter().getSubject().getName(), q.getChapter().getName(), q.getDifficulty().name()));
+        sb.append("---\n\n");
+        sb.append("### Why this is correct\n");
+        sb.append(String.format("Option %s (%s) is the correct answer. ", q.getCorrectAnswer(), correctOpt));
+        if (q.getExplanation() != null && !q.getExplanation().isBlank()) {
+            sb.append(q.getExplanation()).append("\n\n");
+        } else {
+            sb.append("Refer to standard textbooks for the detailed mechanism.\n\n");
+        }
+        sb.append("### Option-wise Analysis\n");
+        String[] labels = {"A", "B", "C", "D"};
+        String[] options = {q.getOptionA(), q.getOptionB(), q.getOptionC(), q.getOptionD()};
+        for (int i = 0; i < 4; i++) {
+            if (labels[i].equals(q.getCorrectAnswer())) {
+                sb.append(String.format("- **Option %s) %s** — ✅ Correct answer\n", labels[i], options[i]));
+            } else {
+                sb.append(String.format("- **Option %s) %s** — ❌ Incorrect. Review the topic of %s for differentiation.\n",
+                        labels[i], options[i], q.getChapter().getName()));
+            }
+        }
+        sb.append("\n### Key Takeaway\n");
+        sb.append(String.format("Focus on the chapter **%s** under **%s** for deeper understanding of this concept.\n\n",
+                q.getChapter().getName(), q.getChapter().getSubject().getName()));
+        sb.append("\n> ⚠️ *AI-powered detailed explanation is currently unavailable. This is a structured breakdown based on available data. " +
+                "Please try again later for a comprehensive AI explanation.*");
+        return sb.toString();
     }
 
     private String generateFallbackTutor(Question q, String query) {
