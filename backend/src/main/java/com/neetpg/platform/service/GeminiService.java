@@ -22,6 +22,12 @@ public class GeminiService {
     @Value("${gemini.api-key:}")
     private String apiKey;
 
+    private static final String[] MODELS = {
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-1.5-flash"
+    };
+
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -30,6 +36,50 @@ public class GeminiService {
 
     public boolean isAvailable() {
         return apiKey != null && !apiKey.isBlank();
+    }
+
+    private String callGeminiApi(String prompt) {
+        for (String model : MODELS) {
+            try {
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+
+                Map<String, Object> requestBody = Map.of(
+                    "contents", List.of(Map.of(
+                        "parts", List.of(Map.of("text", prompt))
+                    ))
+                );
+
+                String json = objectMapper.writeValueAsString(requestBody);
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(json))
+                        .timeout(Duration.ofSeconds(30))
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    JsonNode root = objectMapper.readTree(response.body());
+                    String text = root.path("candidates").path(0)
+                            .path("content").path("parts").path(0)
+                            .path("text").asText();
+                    if (text != null && !text.isBlank()) {
+                        log.info("Gemini API responded successfully using model: {}", model);
+                        return text;
+                    }
+                } else if (response.statusCode() == 429) {
+                    log.warn("Gemini model {} quota exhausted, trying next model...", model);
+                } else {
+                    log.warn("Gemini model {} returned status {}: {}", model, response.statusCode(), response.body());
+                }
+            } catch (Exception e) {
+                log.error("Failed to call Gemini API with model {}", model, e);
+            }
+        }
+        log.error("All Gemini models exhausted or failed");
+        return null;
     }
 
     public String generateExplanation(Question q) {
@@ -88,39 +138,7 @@ public class GeminiService {
             q.getOptionA(), q.getOptionB(), q.getOptionC(), q.getOptionD()
         );
 
-        try {
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
-
-            Map<String, Object> requestBody = Map.of(
-                "contents", List.of(Map.of(
-                    "parts", List.of(Map.of("text", prompt))
-                ))
-            );
-
-            String json = objectMapper.writeValueAsString(requestBody);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .timeout(Duration.ofSeconds(30))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                JsonNode root = objectMapper.readTree(response.body());
-                return root.path("candidates").path(0)
-                        .path("content").path("parts").path(0)
-                        .path("text").asText();
-            } else {
-                log.warn("Gemini API returned status {}: {}", response.statusCode(), response.body());
-                return null;
-            }
-        } catch (Exception e) {
-            log.error("Failed to call Gemini API", e);
-            return null;
-        }
+        return callGeminiApi(prompt);
     }
 
     public String generateTutorResponse(Question q, String query) {
@@ -144,38 +162,6 @@ public class GeminiService {
             query
         );
 
-        try {
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
-
-            Map<String, Object> requestBody = Map.of(
-                "contents", List.of(Map.of(
-                    "parts", List.of(Map.of("text", prompt))
-                ))
-            );
-
-            String json = objectMapper.writeValueAsString(requestBody);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .timeout(Duration.ofSeconds(30))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                JsonNode root = objectMapper.readTree(response.body());
-                return root.path("candidates").path(0)
-                        .path("content").path("parts").path(0)
-                        .path("text").asText();
-            } else {
-                log.warn("Gemini API returned status {}: {}", response.statusCode(), response.body());
-                return null;
-            }
-        } catch (Exception e) {
-            log.error("Failed to call Gemini API", e);
-            return null;
-        }
+        return callGeminiApi(prompt);
     }
 }
