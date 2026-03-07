@@ -20,12 +20,21 @@ import java.util.Map;
 public class GeminiService {
 
     @Value("${gemini.api-key:}")
-    private String apiKey;
+    private String geminiApiKey;
 
-    private static final String[] MODELS = {
+    @Value("${groq.api-key:}")
+    private String groqApiKey;
+
+    private static final String[] GEMINI_MODELS = {
         "gemini-2.0-flash",
         "gemini-2.0-flash-lite",
         "gemini-1.5-flash"
+    };
+
+    private static final String[] GROQ_MODELS = {
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+        "gemma2-9b-it"
     };
 
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -35,13 +44,43 @@ public class GeminiService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public boolean isAvailable() {
-        return apiKey != null && !apiKey.isBlank();
+        return (geminiApiKey != null && !geminiApiKey.isBlank())
+            || (groqApiKey != null && !groqApiKey.isBlank());
+    }
+
+    private boolean isGeminiAvailable() {
+        return geminiApiKey != null && !geminiApiKey.isBlank();
+    }
+
+    private boolean isGroqAvailable() {
+        return groqApiKey != null && !groqApiKey.isBlank();
+    }
+
+    /**
+     * Try Gemini first, then fall back to Groq.
+     */
+    private String callAiApi(String prompt) {
+        // Try Gemini models first
+        if (isGeminiAvailable()) {
+            String result = callGeminiApi(prompt);
+            if (result != null) return result;
+        }
+
+        // Fall back to Groq
+        if (isGroqAvailable()) {
+            log.info("Falling back to Groq API...");
+            String result = callGroqApi(prompt);
+            if (result != null) return result;
+        }
+
+        log.error("All AI providers failed");
+        return null;
     }
 
     private String callGeminiApi(String prompt) {
-        for (String model : MODELS) {
+        for (String model : GEMINI_MODELS) {
             try {
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + geminiApiKey;
 
                 Map<String, Object> requestBody = Map.of(
                     "contents", List.of(Map.of(
@@ -66,19 +105,65 @@ public class GeminiService {
                             .path("content").path("parts").path(0)
                             .path("text").asText();
                     if (text != null && !text.isBlank()) {
-                        log.info("Gemini API responded successfully using model: {}", model);
+                        log.info("Gemini responded successfully using model: {}", model);
+                        return text;
+                    }
+                } else if (response.statusCode() == 429 || response.statusCode() == 403) {
+                    log.warn("Gemini model {} quota/billing issue (status {}), trying next...", model, response.statusCode());
+                } else {
+                    log.warn("Gemini model {} returned status {}", model, response.statusCode());
+                }
+            } catch (Exception e) {
+                log.error("Gemini API call failed for model {}", model, e);
+            }
+        }
+        log.warn("All Gemini models exhausted or failed");
+        return null;
+    }
+
+    private String callGroqApi(String prompt) {
+        for (String model : GROQ_MODELS) {
+            try {
+                Map<String, Object> requestBody = Map.of(
+                    "model", model,
+                    "messages", List.of(Map.of(
+                        "role", "user",
+                        "content", prompt
+                    )),
+                    "temperature", 0.7,
+                    "max_tokens", 4096
+                );
+
+                String json = objectMapper.writeValueAsString(requestBody);
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + groqApiKey)
+                        .POST(HttpRequest.BodyPublishers.ofString(json))
+                        .timeout(Duration.ofSeconds(30))
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    JsonNode root = objectMapper.readTree(response.body());
+                    String text = root.path("choices").path(0)
+                            .path("message").path("content").asText();
+                    if (text != null && !text.isBlank()) {
+                        log.info("Groq responded successfully using model: {}", model);
                         return text;
                     }
                 } else if (response.statusCode() == 429) {
-                    log.warn("Gemini model {} quota exhausted, trying next model...", model);
+                    log.warn("Groq model {} rate limited, trying next...", model);
                 } else {
-                    log.warn("Gemini model {} returned status {}: {}", model, response.statusCode(), response.body());
+                    log.warn("Groq model {} returned status {}: {}", model, response.statusCode(), response.body());
                 }
             } catch (Exception e) {
-                log.error("Failed to call Gemini API with model {}", model, e);
+                log.error("Groq API call failed for model {}", model, e);
             }
         }
-        log.error("All Gemini models exhausted or failed");
+        log.warn("All Groq models failed");
         return null;
     }
 
@@ -138,7 +223,7 @@ public class GeminiService {
             q.getOptionA(), q.getOptionB(), q.getOptionC(), q.getOptionD()
         );
 
-        return callGeminiApi(prompt);
+        return callAiApi(prompt);
     }
 
     public String generateTutorResponse(Question q, String query) {
@@ -162,6 +247,6 @@ public class GeminiService {
             query
         );
 
-        return callGeminiApi(prompt);
+        return callAiApi(prompt);
     }
 }
