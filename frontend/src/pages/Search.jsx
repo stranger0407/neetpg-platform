@@ -14,6 +14,7 @@ export default function Search() {
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState(null);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
   const [aiExplanations, setAiExplanations] = useState({});
   const [aiLoading, setAiLoading] = useState({});
 
@@ -38,6 +39,7 @@ export default function Search() {
     setLoading(true);
     setError('');
     setSearched(true);
+    setSelectedAnswers({});
     try {
       const params = new URLSearchParams();
       if (keyword.trim()) params.set('keyword', keyword.trim());
@@ -67,6 +69,12 @@ export default function Search() {
 
   const goToPage = (p) => {
     doSearch(p);
+  };
+
+  const selectAnswer = (questionId, label) => {
+    if (selectedAnswers[questionId]) return;
+    setSelectedAnswers(prev => ({ ...prev, [questionId]: label }));
+    setExpandedId(questionId);
   };
 
   const fetchAiExplanation = async (questionId) => {
@@ -159,6 +167,10 @@ export default function Search() {
             <p className="text-sm text-gray-500">{totalElements} result{totalElements !== 1 ? 's' : ''} found</p>
             {results.map((q) => {
               const isExpanded = expandedId === q.id;
+              const userPick = selectedAnswers[q.id];
+              const isAnswered = !!userPick;
+              const isRevealed = isExpanded || isAnswered;
+
               return (
                 <div key={q.id} className="bg-white rounded-xl border border-gray-100 p-5 sm:p-6">
                   <p className="text-gray-900 leading-relaxed whitespace-pre-wrap mb-4">
@@ -167,37 +179,93 @@ export default function Search() {
 
                   <div className="space-y-2 mb-4">
                     {optionKeys.map((key, idx) => {
-                      const isCorrect = optionLabels[idx] === q.correctAnswer;
-                      return (
-                        <div
-                          key={key}
-                          className={`flex items-center gap-3 p-2.5 rounded-lg border ${
-                            isExpanded && isCorrect ? 'border-green-300 bg-green-50' :
-                            'border-gray-100 bg-gray-50'
-                          }`}
-                        >
-                          <span className="text-xs font-semibold w-6 text-center text-gray-500">
-                            {optionLabels[idx]}
-                          </span>
-                          <span className="text-sm text-gray-700">{q[key]}</span>
-                          {isExpanded && isCorrect && (
-                            <svg className="w-4 h-4 text-green-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      const label = optionLabels[idx];
+                      const isCorrect = label === q.correctAnswer;
+                      const isSelected = userPick === label;
+                      const isWrongPick = isSelected && !isCorrect;
+
+                      let optionClass = '';
+                      let labelClass = '';
+                      let iconEl = null;
+
+                      if (isRevealed) {
+                        if (isCorrect) {
+                          optionClass = 'border-green-300 bg-green-50';
+                          labelClass = 'bg-green-600 text-white';
+                          iconEl = (
+                            <svg className="w-4 h-4 text-green-600 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                          )}
-                        </div>
+                          );
+                        } else if (isWrongPick) {
+                          optionClass = 'border-red-300 bg-red-50';
+                          labelClass = 'bg-red-600 text-white';
+                          iconEl = (
+                            <svg className="w-4 h-4 text-red-600 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          );
+                        } else {
+                          optionClass = 'border-gray-100 bg-gray-50 opacity-60';
+                          labelClass = 'bg-gray-200 text-gray-500';
+                        }
+                      } else {
+                        optionClass = 'border-gray-200 bg-gray-50 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer';
+                        labelClass = 'bg-gray-200 text-gray-600';
+                      }
+
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          disabled={isRevealed}
+                          onClick={() => selectAnswer(q.id, label)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left ${optionClass} ${isRevealed ? 'cursor-default' : ''}`}
+                        >
+                          <span className={`text-xs font-bold w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors ${labelClass}`}>
+                            {label}
+                          </span>
+                          <span className="text-sm text-gray-700 flex-1">{q[key]}</span>
+                          {iconEl}
+                        </button>
                       );
                     })}
                   </div>
 
-                  <button
-                    onClick={() => setExpandedId(isExpanded ? null : q.id)}
-                    className="text-sm text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer mb-3"
-                  >
-                    {isExpanded ? 'Hide Answer' : 'Show Answer'}
-                  </button>
+                  {isAnswered && (
+                    <div className={`mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                      userPick === q.correctAnswer
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {userPick === q.correctAnswer ? (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Correct!
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Incorrect — Answer is {q.correctAnswer}
+                        </>
+                      )}
+                    </div>
+                  )}
 
-                  {isExpanded && q.explanation && (
+                  {!isAnswered && (
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : q.id)}
+                      className="text-sm text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer mb-3"
+                    >
+                      {isExpanded ? 'Hide Answer' : 'Show Answer'}
+                    </button>
+                  )}
+
+                  {isRevealed && q.explanation && (
                     <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-xs font-semibold text-blue-700 mb-1">Explanation</p>
                       <p className="text-sm text-blue-900 leading-relaxed whitespace-pre-wrap">
@@ -206,7 +274,7 @@ export default function Search() {
                     </div>
                   )}
 
-                  {isExpanded && (
+                  {isRevealed && (
                     <div className="mt-3">
                       {!aiExplanations[q.id] ? (
                         <button
