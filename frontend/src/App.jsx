@@ -14,6 +14,7 @@ import Leaderboard from './pages/Leaderboard';
 import MockTest from './pages/MockTest';
 import Bookmarks from './pages/Bookmarks';
 import Search from './pages/Search';
+import DailyChallenge from './pages/DailyChallenge';
 import Admin from './pages/Admin';
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -135,6 +136,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Search />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/daily-challenge"
+          element={
+            <ProtectedRoute>
+              <DailyChallenge />
             </ProtectedRoute>
           }
         />
