@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface QuizSessionRepository extends JpaRepository<QuizSession, Long> {
 
@@ -31,4 +33,19 @@ public interface QuizSessionRepository extends JpaRepository<QuizSession, Long> 
            "FROM QuizSession qs WHERE qs.completed = true AND qs.chapter.subject.id = :subjectId " +
            "GROUP BY qs.user.id ORDER BY SUM(qs.marks) DESC")
     List<Object[]> getSubjectLeaderboard(@Param("subjectId") Long subjectId);
+
+    // --- Daily Challenge queries ---
+
+    Optional<QuizSession> findByUserIdAndQuizTypeAndChallengeDate(
+            Long userId, QuizSession.QuizType quizType, LocalDate challengeDate);
+
+    @Query("SELECT qs.user.id, qs.marks, qs.correct, qs.totalQuestions " +
+           "FROM QuizSession qs WHERE qs.quizType = 'DAILY_CHALLENGE' " +
+           "AND qs.challengeDate = :date AND qs.completed = true " +
+           "ORDER BY qs.marks DESC, qs.correct DESC")
+    List<Object[]> getDailyChallengeLeaderboard(@Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(qs) FROM QuizSession qs WHERE qs.quizType = 'DAILY_CHALLENGE' " +
+           "AND qs.challengeDate = :date AND qs.completed = true")
+    long countDailyChallengeParticipants(@Param("date") LocalDate date);
 }

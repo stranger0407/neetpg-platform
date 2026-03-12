@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -45,7 +46,11 @@ public class QuizSession {
     @Builder.Default
     private boolean completed = false;
 
+    /** Only used for DAILY_CHALLENGE sessions – stores the challenge date */
+    private LocalDate challengeDate;
+
     public enum QuizType {
-        PRACTICE, MOCK_TEST, REVISION, RANDOM, PREVIOUS_YEAR, DIFFICULTY_BASED
+        PRACTICE, MOCK_TEST, REVISION, RANDOM, PREVIOUS_YEAR, DIFFICULTY_BASED, DAILY_CHALLENGE
     }
 }
+

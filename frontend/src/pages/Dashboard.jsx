@@ -111,6 +111,32 @@ export default function Dashboard() {
           <p className="mt-1 text-gray-500">Here is your preparation overview.</p>
         </div>
 
+        {/* Daily Challenge Banner */}
+        <Link
+          to="/daily-challenge"
+          className="block mb-8 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white hover:shadow-xl transition-all hover:scale-[1.01] active:scale-[0.99]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <span className="text-2xl">🔥</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold">Daily Challenge</h2>
+                <p className="text-white/80 text-sm mt-0.5">
+                  10 questions • 15 min • Compete on the leaderboard!
+                </p>
+              </div>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+              <span className="text-sm font-medium">Play Now</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </Link>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map((stat) => (
