@@ -1,0 +1,150 @@
+{
+  "subject": "Ophthalmology",
+  "chapters": [
+    {
+      "name": "Ophthalmology General",
+      "questions": [
+        {
+          "questionText": "The most common cause of preventable blindness worldwide is:",
+          "optionA": "Cataract",
+          "optionB": "Diabetic Retinopathy",
+          "optionC": "Glaucoma",
+          "optionD": "Trachoma",
+          "correctAnswer": "D",
+          "explanation": "A neglected tropical disease caused by repeated infections with Chlamydia trachomatis.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Global Health",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "A painful, tender, red, localized swelling at the margin of the eyelid resulting from an acute staphylococcal infection of an eyelash follicle is a:",
+          "optionA": "Blepharitis",
+          "optionB": "Chalazion",
+          "optionC": "Hordeolum (Stye)",
+          "optionD": "Xanthelasma",
+          "correctAnswer": "C",
+          "explanation": "An external stye is an acute, painful bacterial infection.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Eyelids",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "A painless, firm, distinctly nodular swelling in the eyelid, caused by chronic granulomatous inflammation of a Meibomian gland, is a:",
+          "optionA": "Chalazion",
+          "optionB": "Hordeolum (Stye)",
+          "optionC": "Dacryocystitis",
+          "optionD": "Pinguecula",
+          "correctAnswer": "A",
+          "explanation": "Unlike a stye, a chalazion is sterile and slow-growing.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Eyelids",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "A patient working in agriculture presents with severe eye pain, photophobia, and an ulcer on the cornea with a white, fluffy, 'feathery' border and satellite lesions. The likely cause is:",
+          "optionA": "Viral keratitis (Herpes Simplex)",
+          "optionB": "Acanthamoeba keratitis",
+          "optionC": "Fungal keratitis (e.g., Aspergillus or Fusarium)",
+          "optionD": "Bacterial keratitis (e.g., Pseudomonas)",
+          "correctAnswer": "C",
+          "explanation": "Trauma with vegetative matter strongly suggests a fungal etiology.",
+          "difficulty": "MEDIUM",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Cornea",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "A dendritic (branching) corneal ulcer that stains brightly with fluorescein dye is pathognomonic for:",
+          "optionA": "Herpes Simplex Virus (HSV) keratitis",
+          "optionB": "Acanthamoeba keratitis",
+          "optionC": "Bacterial keratitis",
+          "optionD": "Fungal keratitis",
+          "correctAnswer": "A",
+          "explanation": "Steroids are severely contraindicated as they exacerbate the replication of HSV and worsen the ulcer.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Cornea",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "The classic sign of acute angle-closure glaucoma includes all of the following EXCEPT:",
+          "optionA": "A mid-dilated, fixed, unreactive pupil",
+          "optionB": "Halos seen around lights",
+          "optionC": "Severe eye pain and ipsilateral headache",
+          "optionD": "An open, normal-appearing anterior chamber angle on gonioscopy",
+          "correctAnswer": "D",
+          "explanation": "The angle is structurally narrow/closed, blocking aqueous outflow and sharply raising Intraocular Pressure (IOP).",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Glaucoma",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "The primary pathophysiological mechanism of primary open-angle glaucoma (POAG) is:",
+          "optionA": "Obstruction of the episcleral veins",
+          "optionB": "Increased resistance to aqueous outflow through the trabecular meshwork",
+          "optionC": "Pupillary block pushing the iris anteriorly",
+          "optionD": "Excessive production of aqueous humor by the ciliary body",
+          "correctAnswer": "B",
+          "explanation": "POAG is painless and progressive, causing peripheral visual field loss ('tunnel vision').",
+          "difficulty": "MEDIUM",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Glaucoma",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "A painless, progressive, profound reduction in visual acuity characterized by an opacity of the crystalline lens is a:",
+          "optionA": "Retinal Detachment",
+          "optionB": "Cataract",
+          "optionC": "Macular Degeneration",
+          "optionD": "Optic Neuritis",
+          "correctAnswer": "B",
+          "explanation": "Cataract acts as a physical barrier to light entering the eye.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Lens",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "The hallmark finding of proliferative diabetic retinopathy, distinguishing it from non-proliferative retinopathy, is:",
+          "optionA": "Cotton wool spots",
+          "optionB": "Neovascularization (growth of new, fragile blood vessels)",
+          "optionC": "Hard exudates",
+          "optionD": "Microaneurysms",
+          "correctAnswer": "B",
+          "explanation": "Ischemia drives VEGF release, causing new, weak vessels to grow, leading to vitreous hemorrhage.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Retina",
+          "tags": "Ophthalmology,Ophthalmology General"
+        },
+        {
+          "questionText": "A highly myopic young man presents complaining of a sudden onset of 'flashing lights' (photopsia) and multiple new 'floaters', followed by a dark shadow moving like a 'curtain' over his vision. Diagnosis?",
+          "optionA": "Rhegmatogenous Retinal Detachment",
+          "optionB": "Optic Neuritis",
+          "optionC": "Central Retinal Artery Occlusion",
+          "optionD": "Acute Angle-Closure Glaucoma",
+          "correctAnswer": "A",
+          "explanation": "A retinal tear allows fluid to separate the neurosensory retina from the underlying epithelium.",
+          "difficulty": "EASY",
+          "source": "Textbook",
+          "previousYear": false,
+          "conceptTag": "Retina",
+          "tags": "Ophthalmology,Ophthalmology General"
+        }
+      ]
+    }
+  ]
+}

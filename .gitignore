@@ -10,6 +10,7 @@ build/
 # Spring Boot
 backend/target/
 backend/.mvn/wrapper/maven-wrapper.jar
+backend/src/main/resources/application-local.properties
 
 # Node
 node_modules/
@@ -36,6 +37,13 @@ Thumbs.db
 # Logs
 *.log
 logs/
+*.txt
+
+# Temporary question generator scripts (not part of the codebase)
+backend/src/main/resources/questions/gen_*.js
+backend/src/main/resources/questions/qgen_helper.js
+backend/read_log*.js
+backend/out_*.txt
 
 # Docker
 docker-compose.override.yml
