@@ -1,9 +1,7 @@
 .git
 .gitignore
-node_modules
-src
-public
 *.md
+node_modules
 .env.local
 .env.development
 .env.*.local
