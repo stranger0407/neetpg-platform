@@ -1,0 +1,9 @@
+# Ignore backend and other non-frontend files
+backend
+docker
+.git
+.gitignore
+README.md
+docker-compose.yml
+Dockerfile
+nixpacks.toml
