@@ -9,6 +9,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
+import java.io.InputStream;
 import java.util.*;
 
 @Component
@@ -181,6 +184,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         Random random = new Random(42);
         int totalQuestions = 0;
 
+        ObjectMapper mapper = new ObjectMapper();
+
         for (Map.Entry<String, List<String>> entry : SUBJECT_CHAPTERS.entrySet()) {
             String subjectName = entry.getKey();
             List<String> chapters = entry.getValue();
@@ -189,51 +194,90 @@ public class DatabaseSeeder implements CommandLineRunner {
                     Subject.builder().name(subjectName).build());
             log.info("Created subject: {}", subjectName);
 
+            InputStream is = getClass().getResourceAsStream("/questions/" + subjectName.toLowerCase() + ".json");
+            SubjectData subjectData = null;
+            if (is != null) {
+                try {
+                    subjectData = mapper.readValue(is, SubjectData.class);
+                    log.info("Loaded real questions for subject: {}", subjectName);
+                } catch (Exception e) {
+                    log.error("Failed to parse JSON for subject: {}", subjectName, e);
+                }
+            }
+
             for (String chapterName : chapters) {
                 Chapter chapter = chapterRepository.save(
                         Chapter.builder().name(chapterName).subject(subject).build());
 
-                int questionCount = 300 + random.nextInt(50);
                 List<Question> questions = new ArrayList<>();
+                boolean usedRealData = false;
 
-                for (int i = 1; i <= questionCount; i++) {
-                    Question.Difficulty difficulty = switch (random.nextInt(10)) {
-                        case 0, 1, 2 -> Question.Difficulty.EASY;
-                        case 3, 4, 5, 6 -> Question.Difficulty.MEDIUM;
-                        default -> Question.Difficulty.HARD;
-                    };
+                if (subjectData != null && subjectData.getChapters() != null) {
+                    Optional<ChapterData> chapterDataOpt = subjectData.getChapters().stream()
+                            .filter(ch -> ch.getName().equals(chapterName)).findFirst();
+                    
+                    if (chapterDataOpt.isPresent() && chapterDataOpt.get().getQuestions() != null && !chapterDataOpt.get().getQuestions().isEmpty()) {
+                        for (QuestionData qd : chapterDataOpt.get().getQuestions()) {
+                            questions.add(Question.builder()
+                                    .chapter(chapter)
+                                    .questionText(qd.getQuestionText())
+                                    .optionA(qd.getOptionA())
+                                    .optionB(qd.getOptionB())
+                                    .optionC(qd.getOptionC())
+                                    .optionD(qd.getOptionD())
+                                    .correctAnswer(qd.getCorrectAnswer())
+                                    .explanation(qd.getExplanation())
+                                    .difficulty(Question.Difficulty.valueOf(qd.getDifficulty().toUpperCase()))
+                                    .source(qd.getSource())
+                                    .tags(qd.getTags() != null ? qd.getTags() : subjectName + "," + chapterName)
+                                    .previousYear(qd.isPreviousYear())
+                                    .build());
+                        }
+                        usedRealData = true;
+                    }
+                }
 
-                    String correctAnswer = switch (random.nextInt(4)) {
-                        case 0 -> "A";
-                        case 1 -> "B";
-                        case 2 -> "C";
-                        default -> "D";
-                    };
+                if (!usedRealData) {
+                    int questionCount = 300 + random.nextInt(50);
+                    for (int i = 1; i <= questionCount; i++) {
+                        Question.Difficulty difficulty = switch (random.nextInt(10)) {
+                            case 0, 1, 2 -> Question.Difficulty.EASY;
+                            case 3, 4, 5, 6 -> Question.Difficulty.MEDIUM;
+                            default -> Question.Difficulty.HARD;
+                        };
 
-                    boolean isPreviousYear = random.nextInt(5) == 0;
-                    String source = isPreviousYear ?
-                            "NEET PG " + (2015 + random.nextInt(10)) :
-                            "Standard Textbook";
+                        String correctAnswer = switch (random.nextInt(4)) {
+                            case 0 -> "A";
+                            case 1 -> "B";
+                            case 2 -> "C";
+                            default -> "D";
+                        };
 
-                    questions.add(Question.builder()
-                            .chapter(chapter)
-                            .questionText(generateQuestionText(subjectName, chapterName, i, difficulty))
-                            .optionA(generateOption(subjectName, chapterName, "A", i))
-                            .optionB(generateOption(subjectName, chapterName, "B", i))
-                            .optionC(generateOption(subjectName, chapterName, "C", i))
-                            .optionD(generateOption(subjectName, chapterName, "D", i))
-                            .correctAnswer(correctAnswer)
-                            .explanation(generateExplanation(subjectName, chapterName, correctAnswer, i))
-                            .difficulty(difficulty)
-                            .source(source)
-                            .tags(subjectName + "," + chapterName)
-                            .previousYear(isPreviousYear)
-                            .build());
+                        boolean isPreviousYear = random.nextInt(5) == 0;
+                        String source = isPreviousYear ?
+                                "NEET PG " + (2015 + random.nextInt(10)) :
+                                "Standard Textbook";
+
+                        questions.add(Question.builder()
+                                .chapter(chapter)
+                                .questionText(generateQuestionText(subjectName, chapterName, i, difficulty))
+                                .optionA(generateOption(subjectName, chapterName, "A", i))
+                                .optionB(generateOption(subjectName, chapterName, "B", i))
+                                .optionC(generateOption(subjectName, chapterName, "C", i))
+                                .optionD(generateOption(subjectName, chapterName, "D", i))
+                                .correctAnswer(correctAnswer)
+                                .explanation(generateExplanation(subjectName, chapterName, correctAnswer, i))
+                                .difficulty(difficulty)
+                                .source(source)
+                                .tags(subjectName + "," + chapterName)
+                                .previousYear(isPreviousYear)
+                                .build());
+                    }
                 }
 
                 questionRepository.saveAll(questions);
                 totalQuestions += questions.size();
-                log.info("  Created chapter: {} with {} questions", chapterName, questions.size());
+                log.info("  Created chapter: {} with {} questions (Real Data: {})", chapterName, questions.size(), usedRealData);
             }
         }
 
@@ -283,5 +327,33 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Reference: Standard textbook of %s, relevant chapter on %s. (Q%d)",
             correct, subject, chapter, subject, chapter, num
         );
+    }
+
+    @Data
+    public static class SubjectData {
+        private String subject;
+        private List<ChapterData> chapters;
+    }
+
+    @Data
+    public static class ChapterData {
+        private String name;
+        private List<QuestionData> questions;
+    }
+
+    @Data
+    public static class QuestionData {
+        private String questionText;
+        private String optionA;
+        private String optionB;
+        private String optionC;
+        private String optionD;
+        private String correctAnswer;
+        private String explanation;
+        private String difficulty;
+        private String source;
+        private boolean previousYear;
+        private String conceptTag;
+        private String tags;
     }
 }
