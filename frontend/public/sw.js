@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neetpg-v1';
+const CACHE_NAME = 'neetpg-v2-azure';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
