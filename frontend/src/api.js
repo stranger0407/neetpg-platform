@@ -1,9 +1,6 @@
 import axios from 'axios';
 
-// API backend endpoint - configured via VITE_API_URL env variable
-// Production: https://neetpg-backend.azurewebsites.net
-// Development: http://localhost:8080
-const API_BASE = import.meta.env.VITE_API_URL || 'https://neetpg-backend.azurewebsites.net';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 const api = axios.create({
   baseURL: `${API_BASE}/api`,
