@@ -48,3 +48,13 @@ backend/out_*.txt
 
 # Docker
 docker-compose.override.yml
+
+.vercel
+
+# Local diagnostics and deployment artifacts
+backend/appservice-logs/
+backend/appservice-logs-current/
+backend/appservice-logs-latest/
+backend/appservice-logs*.zip
+backend/coverage.json
+frontend/npm-audit*.json
