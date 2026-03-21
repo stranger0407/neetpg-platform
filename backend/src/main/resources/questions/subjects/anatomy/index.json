@@ -1,0 +1,45 @@
+{
+  "subject": "Anatomy",
+  "chapters": [
+    {
+      "name": "Upper Limb",
+      "file": "upper_limb.json"
+    },
+    {
+      "name": "Lower Limb",
+      "file": "lower_limb.json"
+    },
+    {
+      "name": "Thorax",
+      "file": "thorax.json"
+    },
+    {
+      "name": "Abdomen",
+      "file": "abdomen.json"
+    },
+    {
+      "name": "Head and Neck",
+      "file": "head_and_neck.json"
+    },
+    {
+      "name": "Neuroanatomy",
+      "file": "neuroanatomy.json"
+    },
+    {
+      "name": "Embryology General",
+      "file": "embryology_general.json"
+    },
+    {
+      "name": "Histology",
+      "file": "histology.json"
+    },
+    {
+      "name": "Osteology",
+      "file": "osteology.json"
+    },
+    {
+      "name": "Genetics and Molecular Biology",
+      "file": "genetics_and_molecular_biology.json"
+    }
+  ]
+}

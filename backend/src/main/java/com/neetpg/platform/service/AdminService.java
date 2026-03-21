@@ -9,8 +9,11 @@ import com.neetpg.platform.exception.ResourceNotFoundException;
 import com.neetpg.platform.repository.ChapterRepository;
 import com.neetpg.platform.repository.QuestionRepository;
 import com.neetpg.platform.repository.SubjectRepository;
+import com.neetpg.platform.util.DatabaseSeeder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +21,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +38,7 @@ public class AdminService {
     private final QuestionRepository questionRepository;
     private final ChapterRepository chapterRepository;
     private final SubjectRepository subjectRepository;
+    private final DatabaseSeeder databaseSeeder;
 
     @Transactional
     public QuestionDto.AdminQuestionResponse createQuestion(QuestionDto.CreateRequest request) {
@@ -162,6 +173,301 @@ public class AdminService {
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
         return chapterRepository.save(Chapter.builder().name(name).subject(subject).build());
+    }
+
+    @Transactional
+    public Map<String, Object> rebuildQuestionBank(boolean dryRun, boolean resourceOnly, List<String> keepQuestionSubjects) {
+        long beforeSubjects = subjectRepository.count();
+        long beforeChapters = chapterRepository.count();
+        long beforeQuestions = questionRepository.count();
+        List<String> keepSubjects = Optional.ofNullable(keepQuestionSubjects)
+                .orElse(List.of())
+                .stream()
+                .filter(s -> s != null && !s.isBlank())
+                .map(String::trim)
+                .toList();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("dryRun", dryRun);
+        result.put("resourceOnly", resourceOnly);
+        result.put("keepQuestionSubjects", keepSubjects);
+        result.put("beforeSubjects", beforeSubjects);
+        result.put("beforeChapters", beforeChapters);
+        result.put("beforeQuestions", beforeQuestions);
+
+        if (dryRun) {
+            result.put("deletedSubjects", 0);
+            result.put("deletedChapters", 0);
+            result.put("deletedQuestions", 0);
+            result.put("afterSubjects", beforeSubjects);
+            result.put("afterChapters", beforeChapters);
+            result.put("afterQuestions", beforeQuestions);
+            return result;
+        }
+
+        questionRepository.deleteAllInBatch();
+        chapterRepository.deleteAllInBatch();
+        subjectRepository.deleteAllInBatch();
+
+        if (resourceOnly) {
+            databaseSeeder.backfillFromResourcesWithoutFallback();
+        } else {
+            databaseSeeder.backfillFromResources();
+        }
+
+        long deletedByFilter = 0;
+        if (!keepSubjects.isEmpty()) {
+            for (Subject subject : subjectRepository.findAll()) {
+                boolean keep = keepSubjects.stream().anyMatch(s -> s.equalsIgnoreCase(subject.getName()));
+                if (keep) {
+                    continue;
+                }
+
+                for (Chapter chapter : chapterRepository.findBySubjectId(subject.getId())) {
+                    List<Question> chapterQuestions = questionRepository.findByChapterId(chapter.getId());
+                    if (!chapterQuestions.isEmpty()) {
+                        deletedByFilter += chapterQuestions.size();
+                        questionRepository.deleteAllInBatch(chapterQuestions);
+                    }
+                }
+            }
+        }
+
+        result.put("deletedSubjects", beforeSubjects);
+        result.put("deletedChapters", beforeChapters);
+        result.put("deletedQuestions", beforeQuestions);
+        result.put("deletedQuestionsByFilter", deletedByFilter);
+        result.put("afterSubjects", subjectRepository.count());
+        result.put("afterChapters", chapterRepository.count());
+        result.put("afterQuestions", questionRepository.count());
+        return result;
+    }
+
+    @Transactional
+    public Map<String, Object> replaceChapterQuestionsFromResource(String subjectName, String chapterName, boolean dryRun) {
+        if (subjectName == null || subjectName.isBlank() || chapterName == null || chapterName.isBlank()) {
+            throw new BadRequestException("subjectName and chapterName are required");
+        }
+
+        Subject subject = subjectRepository.findAll().stream()
+                .filter(s -> s.getName() != null)
+                .filter(s -> s.getName().equalsIgnoreCase(subjectName.trim()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Subject not found: " + subjectName));
+
+        Chapter chapter = chapterRepository.findBySubjectId(subject.getId()).stream()
+                .filter(c -> c.getName() != null)
+                .filter(c -> c.getName().equalsIgnoreCase(chapterName.trim()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Chapter not found under subject " + subject.getName() + ": " + chapterName));
+
+        String resourceKey = getResourceKeyForSubject(subject.getName());
+        SubjectResourceData resourceData = loadSubjectResource(resourceKey, subject.getName());
+
+        ChapterResourceData chapterData = Optional.ofNullable(resourceData.getChapters()).orElse(List.of())
+                .stream()
+                .filter(ch -> ch.getName() != null)
+                .filter(ch -> ch.getName().equalsIgnoreCase(chapter.getName()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Chapter not found in resources for subject key " + resourceKey + ": " + chapter.getName()));
+
+        List<QuestionResourceData> sourceQuestions = Optional.ofNullable(chapterData.getQuestions()).orElse(List.of());
+        if (sourceQuestions.isEmpty()) {
+            throw new BadRequestException("No questions found in resource for chapter: " + chapter.getName());
+        }
+
+        long existingCount = questionRepository.countByChapterId(chapter.getId());
+        int incomingCount = sourceQuestions.size();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("subject", subject.getName());
+        result.put("chapter", chapter.getName());
+        result.put("resourceKey", resourceKey);
+        result.put("existingCount", existingCount);
+        result.put("incomingCount", incomingCount);
+        result.put("dryRun", dryRun);
+
+        if (dryRun) {
+            result.put("deleted", 0);
+            result.put("inserted", 0);
+            result.put("finalCount", existingCount);
+            return result;
+        }
+
+        List<Question> replacement = new ArrayList<>(incomingCount);
+        for (QuestionResourceData qd : sourceQuestions) {
+            Question.Difficulty difficulty;
+            try {
+                difficulty = qd.getDifficulty() == null
+                        ? Question.Difficulty.MEDIUM
+                        : Question.Difficulty.valueOf(qd.getDifficulty().trim().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ex) {
+                difficulty = Question.Difficulty.MEDIUM;
+            }
+
+            String correct = qd.getCorrectAnswer() == null ? "A" : qd.getCorrectAnswer().trim().toUpperCase(Locale.ROOT);
+            if (correct.length() > 1) {
+                correct = correct.substring(0, 1);
+            }
+
+            replacement.add(Question.builder()
+                    .chapter(chapter)
+                    .questionText(defaultString(qd.getQuestionText()))
+                    .optionA(defaultString(qd.getOptionA()))
+                    .optionB(defaultString(qd.getOptionB()))
+                    .optionC(defaultString(qd.getOptionC()))
+                    .optionD(defaultString(qd.getOptionD()))
+                    .correctAnswer(correct)
+                    .explanation(defaultString(qd.getExplanation()))
+                    .difficulty(difficulty)
+                    .source(defaultString(qd.getSource()))
+                    .tags(defaultString(qd.getTags()))
+                    .previousYear(qd.isPreviousYear())
+                    .build());
+        }
+
+        List<Question> existing = questionRepository.findByChapterId(chapter.getId());
+        if (!existing.isEmpty()) {
+            questionRepository.deleteAllInBatch(existing);
+        }
+        questionRepository.saveAll(replacement);
+
+        result.put("deleted", existingCount);
+        result.put("inserted", replacement.size());
+        result.put("finalCount", questionRepository.countByChapterId(chapter.getId()));
+        return result;
+    }
+
+    private SubjectResourceData loadSubjectResource(String resourceKey, String subjectName) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        String indexPath = "/questions/subjects/" + resourceKey + "/index.json";
+        try (InputStream indexStream = getClass().getResourceAsStream(indexPath)) {
+            if (indexStream != null) {
+                SubjectIndexData indexData = mapper.readValue(indexStream, SubjectIndexData.class);
+                SubjectResourceData subjectData = new SubjectResourceData();
+                subjectData.setSubject(indexData.getSubject() == null || indexData.getSubject().isBlank() ? subjectName : indexData.getSubject());
+
+                List<ChapterResourceData> chapters = new ArrayList<>();
+                for (ChapterIndexData chapterIndex : Optional.ofNullable(indexData.getChapters()).orElse(List.of())) {
+                    if (chapterIndex == null || chapterIndex.getFile() == null || chapterIndex.getFile().isBlank()) {
+                        continue;
+                    }
+
+                    String chapterPath = "/questions/subjects/" + resourceKey + "/chapters/" + chapterIndex.getFile();
+                    try (InputStream chapterStream = getClass().getResourceAsStream(chapterPath)) {
+                        if (chapterStream == null) {
+                            continue;
+                        }
+
+                        ChapterResourceData chapterData = mapper.readValue(chapterStream, ChapterResourceData.class);
+                        if ((chapterData.getName() == null || chapterData.getName().isBlank()) && chapterIndex.getName() != null) {
+                            chapterData.setName(chapterIndex.getName());
+                        }
+                        chapters.add(chapterData);
+                    }
+                }
+
+                subjectData.setChapters(chapters);
+                return subjectData;
+            }
+        } catch (IOException e) {
+            throw new BadRequestException("Failed to parse structured resource index for " + resourceKey + ": " + e.getMessage());
+        }
+
+        String legacyFile = getLegacyResourceFileForSubject(subjectName);
+        String[] fallbackPaths = new String[] {"/questions/legacy/" + legacyFile, "/questions/" + legacyFile};
+        for (String fallbackPath : fallbackPaths) {
+            try (InputStream legacyStream = getClass().getResourceAsStream(fallbackPath)) {
+                if (legacyStream == null) {
+                    continue;
+                }
+                return mapper.readValue(legacyStream, SubjectResourceData.class);
+            } catch (IOException e) {
+                throw new BadRequestException("Failed to parse legacy resource file " + fallbackPath + ": " + e.getMessage());
+            }
+        }
+
+        throw new ResourceNotFoundException("Resource file not found for subject: " + subjectName);
+    }
+
+    private String getLegacyResourceFileForSubject(String subjectName) {
+        return getSubjectResourceMap().getOrDefault(subjectName.toLowerCase(Locale.ROOT), subjectName.toLowerCase(Locale.ROOT) + ".json");
+    }
+
+    private String getResourceKeyForSubject(String subjectName) {
+        String resourceFile = getLegacyResourceFileForSubject(subjectName);
+        if (resourceFile.endsWith(".json")) {
+            return resourceFile.substring(0, resourceFile.length() - 5);
+        }
+        return resourceFile;
+    }
+
+    private Map<String, String> getSubjectResourceMap() {
+        Map<String, String> resourceFiles = new LinkedHashMap<>();
+        resourceFiles.put("anatomy", "anatomy.json");
+        resourceFiles.put("physiology", "physiology.json");
+        resourceFiles.put("biochemistry", "biochemistry.json");
+        resourceFiles.put("pathology", "pathology.json");
+        resourceFiles.put("pharmacology", "pharmacology.json");
+        resourceFiles.put("microbiology", "microbiology.json");
+        resourceFiles.put("forensic medicine", "forensics.json");
+        resourceFiles.put("community medicine", "psm.json");
+        resourceFiles.put("ent", "ent.json");
+        resourceFiles.put("ophthalmology", "ophthalmology.json");
+        resourceFiles.put("medicine", "medicine.json");
+        resourceFiles.put("surgery", "surgery.json");
+        resourceFiles.put("obstetrics and gynecology", "obgyn.json");
+        resourceFiles.put("pediatrics", "pediatrics.json");
+        resourceFiles.put("orthopedics", "orthopedics.json");
+        resourceFiles.put("dermatology", "dermatology.json");
+        resourceFiles.put("psychiatry", "psychiatry.json");
+        resourceFiles.put("radiology", "radiology.json");
+        resourceFiles.put("anesthesia", "anesthesia.json");
+        return resourceFiles;
+    }
+
+    private String defaultString(String value) {
+        return value == null ? "" : value;
+    }
+
+    @Data
+    public static class SubjectResourceData {
+        private String subject;
+        private List<ChapterResourceData> chapters;
+    }
+
+    @Data
+    public static class SubjectIndexData {
+        private String subject;
+        private List<ChapterIndexData> chapters;
+    }
+
+    @Data
+    public static class ChapterIndexData {
+        private String name;
+        private String file;
+    }
+
+    @Data
+    public static class ChapterResourceData {
+        private String name;
+        private List<QuestionResourceData> questions;
+    }
+
+    @Data
+    public static class QuestionResourceData {
+        private String questionText;
+        private String optionA;
+        private String optionB;
+        private String optionC;
+        private String optionD;
+        private String correctAnswer;
+        private String explanation;
+        private String difficulty;
+        private String source;
+        private boolean previousYear;
+        private String tags;
     }
 
     private QuestionDto.AdminQuestionResponse mapToAdminResponse(Question q) {

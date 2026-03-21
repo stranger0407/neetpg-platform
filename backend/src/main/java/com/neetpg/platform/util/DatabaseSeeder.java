@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import java.io.InputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -177,7 +178,11 @@ public class DatabaseSeeder implements CommandLineRunner {
         SUBJECT_RESOURCE_FILES.put("Surgery", "surgery.json");
         SUBJECT_RESOURCE_FILES.put("Obstetrics and Gynecology", "obgyn.json");
         SUBJECT_RESOURCE_FILES.put("Pediatrics", "pediatrics.json");
+        SUBJECT_RESOURCE_FILES.put("Orthopedics", "orthopedics.json");
         SUBJECT_RESOURCE_FILES.put("Dermatology", "dermatology.json");
+        SUBJECT_RESOURCE_FILES.put("Psychiatry", "psychiatry.json");
+        SUBJECT_RESOURCE_FILES.put("Radiology", "radiology.json");
+        SUBJECT_RESOURCE_FILES.put("Anesthesia", "anesthesia.json");
     }
 
     @Override
@@ -202,7 +207,20 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         ensureDefaultUsers();
 
-        seedSubjectsChaptersAndQuestions();
+        seedSubjectsChaptersAndQuestions(true);
+    }
+
+    public void backfillFromResourcesWithoutFallback() {
+        long existingQuestionCount = questionRepository.count();
+        if (existingQuestionCount > 0) {
+            log.info("Questions already exist ({}). Backfilling only missing chapter question pools from curated resources...", existingQuestionCount);
+        }
+
+        log.info("Starting resource-only database seeding for missing question pool...");
+
+        ensureDefaultUsers();
+
+        seedSubjectsChaptersAndQuestions(false);
     }
 
     private void ensureDefaultUsers() {
@@ -249,7 +267,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     @Transactional
-    protected void seedSubjectsChaptersAndQuestions() {
+    protected void seedSubjectsChaptersAndQuestions(boolean allowFallbackQuestions) {
 
         Random random = new Random(42);
         int totalQuestions = 0;
@@ -270,16 +288,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             Map<String, Chapter> existingChapters = chapterRepository.findBySubjectId(subject.getId()).stream()
                 .collect(Collectors.toMap(ch -> normalizeKey(ch.getName()), ch -> ch, (a, b) -> a));
 
-            SubjectData subjectData = null;
-            String resourceFile = SUBJECT_RESOURCE_FILES.getOrDefault(subjectName, subjectName.toLowerCase(Locale.ROOT) + ".json");
-            try (InputStream is = getClass().getResourceAsStream("/questions/" + resourceFile)) {
-                if (is != null) {
-                    subjectData = mapper.readValue(is, SubjectData.class);
-                    log.info("Loaded real questions for subject: {} from {}", subjectName, resourceFile);
-                }
-            } catch (Exception e) {
-                log.error("Failed to parse JSON for subject: {} from {}", subjectName, resourceFile, e);
-            }
+            String resourceKey = getResourceKeyForSubject(subjectName);
+            SubjectData subjectData = loadSubjectData(mapper, subjectName, resourceKey);
 
             LinkedHashSet<String> chapterNamesToSeed = new LinkedHashSet<>(chapters);
             if (subjectData != null && subjectData.getChapters() != null) {
@@ -333,7 +343,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     }
                 }
 
-                if (!usedRealData) {
+                if (!usedRealData && allowFallbackQuestions) {
                     int questionCount = 30 + random.nextInt(10);
                     for (int i = 1; i <= questionCount; i++) {
                         Question.Difficulty difficulty = switch (random.nextInt(10)) {
@@ -369,6 +379,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 .previousYear(isPreviousYear)
                                 .build());
                     }
+                } else if (!usedRealData) {
+                    log.warn("  Skipping fallback question generation for {} > {} (resource-only mode)", subjectName, chapterName);
                 }
 
                 questionRepository.saveAll(questions);
@@ -382,6 +394,71 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private static String normalizeKey(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String getResourceKeyForSubject(String subjectName) {
+        String resourceFile = SUBJECT_RESOURCE_FILES.getOrDefault(subjectName, subjectName.toLowerCase(Locale.ROOT) + ".json");
+        if (resourceFile.endsWith(".json")) {
+            return resourceFile.substring(0, resourceFile.length() - 5);
+        }
+        return resourceFile;
+    }
+
+    private SubjectData loadSubjectData(ObjectMapper mapper, String subjectName, String resourceKey) {
+        String indexPath = "/questions/subjects/" + resourceKey + "/index.json";
+        try (InputStream indexStream = getClass().getResourceAsStream(indexPath)) {
+            if (indexStream != null) {
+                SubjectIndexData indexData = mapper.readValue(indexStream, SubjectIndexData.class);
+                SubjectData subjectData = new SubjectData();
+                subjectData.setSubject(indexData.getSubject() == null || indexData.getSubject().isBlank() ? subjectName : indexData.getSubject());
+
+                List<ChapterData> chapters = new ArrayList<>();
+                for (ChapterIndexData chapterIndex : Optional.ofNullable(indexData.getChapters()).orElse(List.of())) {
+                    if (chapterIndex == null || chapterIndex.getFile() == null || chapterIndex.getFile().isBlank()) {
+                        continue;
+                    }
+
+                    String chapterPath = "/questions/subjects/" + resourceKey + "/chapters/" + chapterIndex.getFile();
+                    try (InputStream chapterStream = getClass().getResourceAsStream(chapterPath)) {
+                        if (chapterStream == null) {
+                            log.warn("Missing chapter resource {} for subject {}", chapterPath, subjectName);
+                            continue;
+                        }
+
+                        ChapterData chapterData = mapper.readValue(chapterStream, ChapterData.class);
+                        if ((chapterData.getName() == null || chapterData.getName().isBlank()) && chapterIndex.getName() != null) {
+                            chapterData.setName(chapterIndex.getName());
+                        }
+                        chapters.add(chapterData);
+                    } catch (IOException chapterEx) {
+                        log.error("Failed to parse chapter JSON {}", chapterPath, chapterEx);
+                    }
+                }
+
+                subjectData.setChapters(chapters);
+                log.info("Loaded structured questions for subject: {} from /questions/subjects/{}/", subjectName, resourceKey);
+                return subjectData;
+            }
+        } catch (IOException indexEx) {
+            log.error("Failed to parse index JSON {}", indexPath, indexEx);
+        }
+
+        String legacyFile = SUBJECT_RESOURCE_FILES.getOrDefault(subjectName, subjectName.toLowerCase(Locale.ROOT) + ".json");
+        String[] fallbackPaths = new String[] {"/questions/legacy/" + legacyFile, "/questions/" + legacyFile};
+        for (String fallbackPath : fallbackPaths) {
+            try (InputStream is = getClass().getResourceAsStream(fallbackPath)) {
+                if (is == null) {
+                    continue;
+                }
+                SubjectData legacyData = mapper.readValue(is, SubjectData.class);
+                log.info("Loaded legacy questions for subject: {} from {}", subjectName, fallbackPath);
+                return legacyData;
+            } catch (IOException legacyEx) {
+                log.error("Failed to parse legacy JSON for subject: {} from {}", subjectName, fallbackPath, legacyEx);
+            }
+        }
+
+        return null;
     }
 
     private String generateQuestionText(String subject, String chapter, int num, Question.Difficulty diff) {
@@ -433,6 +510,18 @@ public class DatabaseSeeder implements CommandLineRunner {
     public static class SubjectData {
         private String subject;
         private List<ChapterData> chapters;
+    }
+
+    @Data
+    public static class SubjectIndexData {
+        private String subject;
+        private List<ChapterIndexData> chapters;
+    }
+
+    @Data
+    public static class ChapterIndexData {
+        private String name;
+        private String file;
     }
 
     @Data

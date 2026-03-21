@@ -1,0 +1,45 @@
+{
+  "subject": "Biochemistry",
+  "chapters": [
+    {
+      "name": "Chemistry of Carbohydrates",
+      "file": "chemistry_of_carbohydrates.json"
+    },
+    {
+      "name": "Chemistry of Lipids",
+      "file": "chemistry_of_lipids.json"
+    },
+    {
+      "name": "Chemistry of Proteins",
+      "file": "chemistry_of_proteins.json"
+    },
+    {
+      "name": "Enzymes",
+      "file": "enzymes.json"
+    },
+    {
+      "name": "Carbohydrate Metabolism",
+      "file": "carbohydrate_metabolism.json"
+    },
+    {
+      "name": "Lipid Metabolism",
+      "file": "lipid_metabolism.json"
+    },
+    {
+      "name": "Amino Acid Metabolism",
+      "file": "amino_acid_metabolism.json"
+    },
+    {
+      "name": "Nucleotide Metabolism",
+      "file": "nucleotide_metabolism.json"
+    },
+    {
+      "name": "Molecular Biology",
+      "file": "molecular_biology.json"
+    },
+    {
+      "name": "Vitamins and Minerals",
+      "file": "vitamins_and_minerals.json"
+    }
+  ]
+}

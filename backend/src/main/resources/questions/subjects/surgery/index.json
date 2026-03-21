@@ -1,0 +1,49 @@
+{
+  "subject": "Surgery",
+  "chapters": [
+    {
+      "name": "General Surgery Principles",
+      "file": "general_surgery_principles.json"
+    },
+    {
+      "name": "Trauma and Emergency Surgery",
+      "file": "trauma_and_emergency_surgery.json"
+    },
+    {
+      "name": "Orthopedics",
+      "file": "orthopedics.json"
+    },
+    {
+      "name": "Wound Healing",
+      "file": "wound_healing.json"
+    },
+    {
+      "name": "Surgical Infections",
+      "file": "surgical_infections.json"
+    },
+    {
+      "name": "Breast Surgery",
+      "file": "breast_surgery.json"
+    },
+    {
+      "name": "Thyroid Surgery",
+      "file": "thyroid_surgery.json"
+    },
+    {
+      "name": "GI Surgery",
+      "file": "gi_surgery.json"
+    },
+    {
+      "name": "Hepatobiliary Surgery",
+      "file": "hepatobiliary_surgery.json"
+    },
+    {
+      "name": "Vascular Surgery",
+      "file": "vascular_surgery.json"
+    },
+    {
+      "name": "Urology",
+      "file": "urology.json"
+    }
+  ]
+}

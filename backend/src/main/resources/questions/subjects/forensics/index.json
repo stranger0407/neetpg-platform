@@ -1,0 +1,45 @@
+{
+  "subject": "Forensic Medicine",
+  "chapters": [
+    {
+      "name": "Medical Jurisprudence",
+      "file": "medical_jurisprudence.json"
+    },
+    {
+      "name": "Forensic Thanatology",
+      "file": "forensic_thanatology.json"
+    },
+    {
+      "name": "Forensic Traumatology",
+      "file": "forensic_traumatology.json"
+    },
+    {
+      "name": "Toxicology General",
+      "file": "toxicology_general.json"
+    },
+    {
+      "name": "Sexual Offences",
+      "file": "sexual_offences.json"
+    },
+    {
+      "name": "Personal Identification",
+      "file": "personal_identification.json"
+    },
+    {
+      "name": "Asphyxia",
+      "file": "asphyxia.json"
+    },
+    {
+      "name": "Regional Injuries",
+      "file": "regional_injuries.json"
+    },
+    {
+      "name": "Thermal Injuries",
+      "file": "thermal_injuries.json"
+    },
+    {
+      "name": "Forensic Psychiatry",
+      "file": "forensic_psychiatry.json"
+    }
+  ]
+}

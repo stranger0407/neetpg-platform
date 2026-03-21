@@ -1,0 +1,45 @@
+{
+  "subject": "Orthopedics",
+  "chapters": [
+    {
+      "name": "General Orthopedics",
+      "file": "general_orthopedics.json"
+    },
+    {
+      "name": "Fractures Upper Limb",
+      "file": "fractures_upper_limb.json"
+    },
+    {
+      "name": "Fractures Lower Limb",
+      "file": "fractures_lower_limb.json"
+    },
+    {
+      "name": "Spine Disorders",
+      "file": "spine_disorders.json"
+    },
+    {
+      "name": "Joint Disorders",
+      "file": "joint_disorders.json"
+    },
+    {
+      "name": "Bone Tumors",
+      "file": "bone_tumors.json"
+    },
+    {
+      "name": "Metabolic Bone Disease",
+      "file": "metabolic_bone_disease.json"
+    },
+    {
+      "name": "Infections of Bone",
+      "file": "infections_of_bone.json"
+    },
+    {
+      "name": "Congenital Orthopedic Disorders",
+      "file": "congenital_orthopedic_disorders.json"
+    },
+    {
+      "name": "Sports Medicine",
+      "file": "sports_medicine.json"
+    }
+  ]
+}

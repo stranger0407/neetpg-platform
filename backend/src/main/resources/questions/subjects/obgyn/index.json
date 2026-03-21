@@ -1,0 +1,53 @@
+{
+  "subject": "Obstetrics and Gynecology",
+  "chapters": [
+    {
+      "name": "Obstetrics",
+      "file": "obstetrics.json"
+    },
+    {
+      "name": "Gynecology",
+      "file": "gynecology.json"
+    },
+    {
+      "name": "Normal Pregnancy",
+      "file": "normal_pregnancy.json"
+    },
+    {
+      "name": "Abnormal Pregnancy",
+      "file": "abnormal_pregnancy.json"
+    },
+    {
+      "name": "Labor and Delivery",
+      "file": "labor_and_delivery.json"
+    },
+    {
+      "name": "Puerperium",
+      "file": "puerperium.json"
+    },
+    {
+      "name": "High Risk Pregnancy",
+      "file": "high_risk_pregnancy.json"
+    },
+    {
+      "name": "Contraception",
+      "file": "contraception.json"
+    },
+    {
+      "name": "Abnormal Uterine Bleeding",
+      "file": "abnormal_uterine_bleeding.json"
+    },
+    {
+      "name": "Pelvic Infections",
+      "file": "pelvic_infections.json"
+    },
+    {
+      "name": "Benign Gynecological Tumors",
+      "file": "benign_gynecological_tumors.json"
+    },
+    {
+      "name": "Malignant Gynecological Tumors",
+      "file": "malignant_gynecological_tumors.json"
+    }
+  ]
+}

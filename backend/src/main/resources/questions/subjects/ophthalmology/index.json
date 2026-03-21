@@ -1,0 +1,49 @@
+{
+  "subject": "Ophthalmology",
+  "chapters": [
+    {
+      "name": "Ophthalmology General",
+      "file": "ophthalmology_general.json"
+    },
+    {
+      "name": "Anatomy of Eye",
+      "file": "anatomy_of_eye.json"
+    },
+    {
+      "name": "Diseases of Conjunctiva",
+      "file": "diseases_of_conjunctiva.json"
+    },
+    {
+      "name": "Diseases of Cornea",
+      "file": "diseases_of_cornea.json"
+    },
+    {
+      "name": "Diseases of Lens",
+      "file": "diseases_of_lens.json"
+    },
+    {
+      "name": "Glaucoma",
+      "file": "glaucoma.json"
+    },
+    {
+      "name": "Diseases of Retina",
+      "file": "diseases_of_retina.json"
+    },
+    {
+      "name": "Diseases of Uveal Tract",
+      "file": "diseases_of_uveal_tract.json"
+    },
+    {
+      "name": "Strabismus",
+      "file": "strabismus.json"
+    },
+    {
+      "name": "Optics and Refraction",
+      "file": "optics_and_refraction.json"
+    },
+    {
+      "name": "Neuro-ophthalmology",
+      "file": "neuro_ophthalmology.json"
+    }
+  ]
+}

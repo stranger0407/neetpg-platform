@@ -1,0 +1,45 @@
+{
+  "subject": "Anesthesia",
+  "chapters": [
+    {
+      "name": "General Anesthesia",
+      "file": "general_anesthesia.json"
+    },
+    {
+      "name": "Local Anesthesia",
+      "file": "local_anesthesia.json"
+    },
+    {
+      "name": "Regional Anesthesia",
+      "file": "regional_anesthesia.json"
+    },
+    {
+      "name": "Preoperative Assessment",
+      "file": "preoperative_assessment.json"
+    },
+    {
+      "name": "Airway Management",
+      "file": "airway_management.json"
+    },
+    {
+      "name": "Fluid and Blood Therapy",
+      "file": "fluid_and_blood_therapy.json"
+    },
+    {
+      "name": "Monitoring in Anesthesia",
+      "file": "monitoring_in_anesthesia.json"
+    },
+    {
+      "name": "Pain Management",
+      "file": "pain_management.json"
+    },
+    {
+      "name": "ICU and Critical Care",
+      "file": "icu_and_critical_care.json"
+    },
+    {
+      "name": "Cardiopulmonary Resuscitation",
+      "file": "cardiopulmonary_resuscitation.json"
+    }
+  ]
+}
