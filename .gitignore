@@ -62,4 +62,5 @@ frontend/npm-audit*.json
 # Local investigation notes (non-source)
 INVESTIGATION_REPORT.md
 pr_status.json
+pr*_full.json
 head_admin_snapshot*.java
