@@ -132,7 +132,6 @@ export default function MockTest() {
     return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const optionLabels = ['A', 'B', 'C', 'D'];
   const answeredCount = Object.keys(answers).length;
   const reviewCount = Object.keys(markedForReview).length;
   const currentQuestion = questions[currentIndex];
