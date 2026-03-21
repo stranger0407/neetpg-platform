@@ -1,0 +1,45 @@
+{
+  "subject": "ENT",
+  "chapters": [
+    {
+      "name": "Anatomy of Ear",
+      "file": "anatomy_of_ear.json"
+    },
+    {
+      "name": "Anatomy of Nose",
+      "file": "anatomy_of_nose.json"
+    },
+    {
+      "name": "Anatomy of Pharynx",
+      "file": "anatomy_of_pharynx.json"
+    },
+    {
+      "name": "Diseases of External Ear",
+      "file": "diseases_of_external_ear.json"
+    },
+    {
+      "name": "Diseases of Middle Ear",
+      "file": "diseases_of_middle_ear.json"
+    },
+    {
+      "name": "Diseases of Inner Ear",
+      "file": "diseases_of_inner_ear.json"
+    },
+    {
+      "name": "Diseases of Nose and Sinuses",
+      "file": "diseases_of_nose_and_sinuses.json"
+    },
+    {
+      "name": "Diseases of Pharynx",
+      "file": "diseases_of_pharynx.json"
+    },
+    {
+      "name": "Anatomy of Larynx",
+      "file": "anatomy_of_larynx.json"
+    },
+    {
+      "name": "Diseases of Larynx",
+      "file": "diseases_of_larynx.json"
+    }
+  ]
+}

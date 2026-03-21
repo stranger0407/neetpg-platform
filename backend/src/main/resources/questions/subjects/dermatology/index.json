@@ -1,0 +1,49 @@
+{
+  "subject": "Dermatology",
+  "chapters": [
+    {
+      "name": "Dermatology General",
+      "file": "dermatology_general.json"
+    },
+    {
+      "name": "Basic Dermatology",
+      "file": "basic_dermatology.json"
+    },
+    {
+      "name": "Bacterial Skin Infections",
+      "file": "bacterial_skin_infections.json"
+    },
+    {
+      "name": "Viral Skin Infections",
+      "file": "viral_skin_infections.json"
+    },
+    {
+      "name": "Fungal Skin Infections",
+      "file": "fungal_skin_infections.json"
+    },
+    {
+      "name": "Parasitic Skin Infections",
+      "file": "parasitic_skin_infections.json"
+    },
+    {
+      "name": "Papulosquamous Disorders",
+      "file": "papulosquamous_disorders.json"
+    },
+    {
+      "name": "Vesicobullous Disorders",
+      "file": "vesicobullous_disorders.json"
+    },
+    {
+      "name": "Connective Tissue Disorders",
+      "file": "connective_tissue_disorders.json"
+    },
+    {
+      "name": "Pigmentary Disorders",
+      "file": "pigmentary_disorders.json"
+    },
+    {
+      "name": "Skin Tumors",
+      "file": "skin_tumors.json"
+    }
+  ]
+}

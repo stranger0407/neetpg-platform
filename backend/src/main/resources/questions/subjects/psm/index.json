@@ -1,0 +1,45 @@
+{
+  "subject": "Community Medicine",
+  "chapters": [
+    {
+      "name": "Epidemiology",
+      "file": "epidemiology.json"
+    },
+    {
+      "name": "Biostatistics",
+      "file": "biostatistics.json"
+    },
+    {
+      "name": "Nutrition",
+      "file": "nutrition.json"
+    },
+    {
+      "name": "Communicable Diseases",
+      "file": "communicable_diseases.json"
+    },
+    {
+      "name": "Non-Communicable Diseases",
+      "file": "non_communicable_diseases.json"
+    },
+    {
+      "name": "Maternal and Child Health",
+      "file": "maternal_and_child_health.json"
+    },
+    {
+      "name": "National Health Programs",
+      "file": "national_health_programs.json"
+    },
+    {
+      "name": "Environment and Health",
+      "file": "environment_and_health.json"
+    },
+    {
+      "name": "Health Care Delivery",
+      "file": "health_care_delivery.json"
+    },
+    {
+      "name": "Demography and Family Planning",
+      "file": "demography_and_family_planning.json"
+    }
+  ]
+}

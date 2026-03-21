@@ -1,0 +1,49 @@
+{
+  "subject": "Pharmacology",
+  "chapters": [
+    {
+      "name": "General Pharmacology",
+      "file": "general_pharmacology.json"
+    },
+    {
+      "name": "Autonomic Nervous System",
+      "file": "autonomic_nervous_system.json"
+    },
+    {
+      "name": "Cardiovascular Pharmacology",
+      "file": "cardiovascular_pharmacology.json"
+    },
+    {
+      "name": "Chemotherapy (Antimicrobials & Oncology)",
+      "file": "chemotherapy_antimicrobials_oncology.json"
+    },
+    {
+      "name": "CNS Pharmacology",
+      "file": "cns_pharmacology.json"
+    },
+    {
+      "name": "Chemotherapy Antimicrobials",
+      "file": "chemotherapy_antimicrobials.json"
+    },
+    {
+      "name": "Autacoids",
+      "file": "autacoids.json"
+    },
+    {
+      "name": "Endocrine Pharmacology",
+      "file": "endocrine_pharmacology.json"
+    },
+    {
+      "name": "GI Pharmacology",
+      "file": "gi_pharmacology.json"
+    },
+    {
+      "name": "Respiratory Pharmacology",
+      "file": "respiratory_pharmacology.json"
+    },
+    {
+      "name": "Chemotherapy Anticancer",
+      "file": "chemotherapy_anticancer.json"
+    }
+  ]
+}

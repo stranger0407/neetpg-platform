@@ -1,0 +1,49 @@
+{
+  "subject": "Pediatrics",
+  "chapters": [
+    {
+      "name": "Pediatrics General",
+      "file": "pediatrics_general.json"
+    },
+    {
+      "name": "Neonatology",
+      "file": "neonatology.json"
+    },
+    {
+      "name": "Growth and Development",
+      "file": "growth_and_development.json"
+    },
+    {
+      "name": "Nutrition in Pediatrics",
+      "file": "nutrition_in_pediatrics.json"
+    },
+    {
+      "name": "Infectious Diseases in Children",
+      "file": "infectious_diseases_in_children.json"
+    },
+    {
+      "name": "Cardiovascular Disorders",
+      "file": "cardiovascular_disorders.json"
+    },
+    {
+      "name": "Respiratory Disorders in Children",
+      "file": "respiratory_disorders_in_children.json"
+    },
+    {
+      "name": "GI Disorders in Children",
+      "file": "gi_disorders_in_children.json"
+    },
+    {
+      "name": "CNS Disorders in Children",
+      "file": "cns_disorders_in_children.json"
+    },
+    {
+      "name": "Pediatric Nephrology",
+      "file": "pediatric_nephrology.json"
+    },
+    {
+      "name": "Hematological Disorders in Children",
+      "file": "hematological_disorders_in_children.json"
+    }
+  ]
+}

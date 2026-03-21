@@ -1,0 +1,53 @@
+{
+  "subject": "Pathology",
+  "chapters": [
+    {
+      "name": "Cell Injury and Adaptation",
+      "file": "cell_injury_and_adaptation.json"
+    },
+    {
+      "name": "Inflammation",
+      "file": "inflammation.json"
+    },
+    {
+      "name": "Hemodynamic Disorders",
+      "file": "hemodynamic_disorders.json"
+    },
+    {
+      "name": "Neoplasia",
+      "file": "neoplasia.json"
+    },
+    {
+      "name": "Immunopathology",
+      "file": "immunopathology.json"
+    },
+    {
+      "name": "Hematopathology",
+      "file": "hematopathology.json"
+    },
+    {
+      "name": "Cardiovascular Pathology",
+      "file": "cardiovascular_pathology.json"
+    },
+    {
+      "name": "Respiratory Pathology",
+      "file": "respiratory_pathology.json"
+    },
+    {
+      "name": "GI Pathology",
+      "file": "gi_pathology.json"
+    },
+    {
+      "name": "Renal Pathology",
+      "file": "renal_pathology.json"
+    },
+    {
+      "name": "Hepatobiliary Pathology",
+      "file": "hepatobiliary_pathology.json"
+    },
+    {
+      "name": "Endocrine Pathology",
+      "file": "endocrine_pathology.json"
+    }
+  ]
+}

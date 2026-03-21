@@ -51,9 +51,44 @@ public class AdminController {
         return ResponseEntity.ok(adminService.createChapter(request.getName(), request.getSubjectId()));
     }
 
+    @PostMapping("/replace-chapter-from-json")
+    public ResponseEntity<Map<String, Object>> replaceChapterFromJson(@RequestBody ReplaceChapterRequest request) {
+        boolean dryRun = request.getDryRun() == null || request.getDryRun();
+        return ResponseEntity.ok(adminService.replaceChapterQuestionsFromResource(
+                request.getSubjectName(),
+                request.getChapterName(),
+                dryRun
+        ));
+    }
+
+    @PostMapping("/rebuild-question-bank")
+    public ResponseEntity<Map<String, Object>> rebuildQuestionBank(@RequestBody(required = false) RebuildQuestionBankRequest request) {
+        boolean dryRun = request == null || request.getDryRun() == null || request.getDryRun();
+        boolean resourceOnly = request == null || request.getResourceOnly() == null || request.getResourceOnly();
+        return ResponseEntity.ok(adminService.rebuildQuestionBank(
+                dryRun,
+                resourceOnly,
+                request == null ? null : request.getKeepQuestionSubjects()
+        ));
+    }
+
     @Data
     public static class ChapterRequest {
         private String name;
         private Long subjectId;
+    }
+
+    @Data
+    public static class ReplaceChapterRequest {
+        private String subjectName;
+        private String chapterName;
+        private Boolean dryRun;
+    }
+
+    @Data
+    public static class RebuildQuestionBankRequest {
+        private Boolean dryRun;
+        private Boolean resourceOnly;
+        private java.util.List<String> keepQuestionSubjects;
     }
 }

@@ -1,0 +1,45 @@
+{
+  "subject": "Physiology",
+  "chapters": [
+    {
+      "name": "General Physiology",
+      "file": "general_physiology.json"
+    },
+    {
+      "name": "Nerve Muscle Physiology",
+      "file": "nerve_muscle_physiology.json"
+    },
+    {
+      "name": "Blood",
+      "file": "blood.json"
+    },
+    {
+      "name": "Cardiovascular System",
+      "file": "cardiovascular_system.json"
+    },
+    {
+      "name": "Respiratory System",
+      "file": "respiratory_system.json"
+    },
+    {
+      "name": "Renal Physiology",
+      "file": "renal_physiology.json"
+    },
+    {
+      "name": "GI Physiology",
+      "file": "gi_physiology.json"
+    },
+    {
+      "name": "Endocrine System",
+      "file": "endocrine_system.json"
+    },
+    {
+      "name": "Neurophysiology",
+      "file": "neurophysiology.json"
+    },
+    {
+      "name": "Reproductive Physiology",
+      "file": "reproductive_physiology.json"
+    }
+  ]
+}

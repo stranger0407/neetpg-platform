@@ -1,0 +1,45 @@
+{
+  "subject": "Psychiatry",
+  "chapters": [
+    {
+      "name": "Classification of Mental Disorders",
+      "file": "classification_of_mental_disorders.json"
+    },
+    {
+      "name": "Schizophrenia",
+      "file": "schizophrenia.json"
+    },
+    {
+      "name": "Mood Disorders",
+      "file": "mood_disorders.json"
+    },
+    {
+      "name": "Anxiety Disorders",
+      "file": "anxiety_disorders.json"
+    },
+    {
+      "name": "Substance Use Disorders",
+      "file": "substance_use_disorders.json"
+    },
+    {
+      "name": "Personality Disorders",
+      "file": "personality_disorders.json"
+    },
+    {
+      "name": "Child Psychiatry",
+      "file": "child_psychiatry.json"
+    },
+    {
+      "name": "Psychopharmacology",
+      "file": "psychopharmacology.json"
+    },
+    {
+      "name": "Psychotherapy",
+      "file": "psychotherapy.json"
+    },
+    {
+      "name": "Forensic Psychiatry and Ethics",
+      "file": "forensic_psychiatry_and_ethics.json"
+    }
+  ]
+}

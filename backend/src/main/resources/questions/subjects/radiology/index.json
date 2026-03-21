@@ -1,0 +1,45 @@
+{
+  "subject": "Radiology",
+  "chapters": [
+    {
+      "name": "Basic Radiology Physics",
+      "file": "basic_radiology_physics.json"
+    },
+    {
+      "name": "X-Ray Imaging",
+      "file": "x_ray_imaging.json"
+    },
+    {
+      "name": "CT Scan",
+      "file": "ct_scan.json"
+    },
+    {
+      "name": "MRI Imaging",
+      "file": "mri_imaging.json"
+    },
+    {
+      "name": "Ultrasound",
+      "file": "ultrasound.json"
+    },
+    {
+      "name": "Nuclear Medicine",
+      "file": "nuclear_medicine.json"
+    },
+    {
+      "name": "Chest Radiology",
+      "file": "chest_radiology.json"
+    },
+    {
+      "name": "Abdominal Radiology",
+      "file": "abdominal_radiology.json"
+    },
+    {
+      "name": "Musculoskeletal Radiology",
+      "file": "musculoskeletal_radiology.json"
+    },
+    {
+      "name": "Neuroradiology",
+      "file": "neuroradiology.json"
+    }
+  ]
+}

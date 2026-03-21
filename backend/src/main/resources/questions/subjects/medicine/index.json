@@ -1,0 +1,53 @@
+{
+  "subject": "Medicine",
+  "chapters": [
+    {
+      "name": "Cardiology",
+      "file": "cardiology.json"
+    },
+    {
+      "name": "Pulmonology",
+      "file": "pulmonology.json"
+    },
+    {
+      "name": "Gastroenterology",
+      "file": "gastroenterology.json"
+    },
+    {
+      "name": "Nephrology",
+      "file": "nephrology.json"
+    },
+    {
+      "name": "Neurology",
+      "file": "neurology.json"
+    },
+    {
+      "name": "Endocrinology",
+      "file": "endocrinology.json"
+    },
+    {
+      "name": "Hematology",
+      "file": "hematology.json"
+    },
+    {
+      "name": "Rheumatology",
+      "file": "rheumatology.json"
+    },
+    {
+      "name": "Infectious Diseases",
+      "file": "infectious_diseases.json"
+    },
+    {
+      "name": "Dermatology in Medicine",
+      "file": "dermatology_in_medicine.json"
+    },
+    {
+      "name": "Critical Care",
+      "file": "critical_care.json"
+    },
+    {
+      "name": "Poisoning",
+      "file": "poisoning.json"
+    }
+  ]
+}

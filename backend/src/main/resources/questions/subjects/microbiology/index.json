@@ -1,0 +1,45 @@
+{
+  "subject": "Microbiology",
+  "chapters": [
+    {
+      "name": "General Microbiology",
+      "file": "general_microbiology.json"
+    },
+    {
+      "name": "Immunology",
+      "file": "immunology.json"
+    },
+    {
+      "name": "Bacteriology General",
+      "file": "bacteriology_general.json"
+    },
+    {
+      "name": "Gram Positive Cocci",
+      "file": "gram_positive_cocci.json"
+    },
+    {
+      "name": "Gram Negative Bacilli",
+      "file": "gram_negative_bacilli.json"
+    },
+    {
+      "name": "Mycobacteria",
+      "file": "mycobacteria.json"
+    },
+    {
+      "name": "Virology General",
+      "file": "virology_general.json"
+    },
+    {
+      "name": "DNA Viruses",
+      "file": "dna_viruses.json"
+    },
+    {
+      "name": "RNA Viruses",
+      "file": "rna_viruses.json"
+    },
+    {
+      "name": "Mycology and Parasitology",
+      "file": "mycology_and_parasitology.json"
+    }
+  ]
+}
