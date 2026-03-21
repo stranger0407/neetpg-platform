@@ -168,6 +168,48 @@
       "previousYear": true,
       "conceptTag": "Poisoning Approach",
       "tags": "Medicine,Poisoning,PYQ,Emergency"
+    },
+    {
+      "questionText": "Iron poisoning in children presents with which classic stages?",
+      "optionA": "Only liver failure",
+      "optionB": "Stage 1: GI (vomiting, bloody diarrhea, 0-6h) → Stage 2: latent improvement (6-24h) → Stage 3: systemic toxicity (metabolic acidosis, shock, hepatic necrosis, 12-48h)",
+      "optionC": "Immediate seizures only",
+      "optionD": "Only renal failure",
+      "correctAnswer": "B",
+      "explanation": "Iron poisoning stages: (1) GI phase (0-6h): nausea, vomiting, abdominal pain, bloody diarrhea, hematemesis. (2) Latent/quiescent phase (6-24h): apparent improvement (misleading). (3) Systemic toxicity (12-48h): metabolic acidosis (anion gap), shock, hepatic necrosis, coagulopathy, renal failure. (4) Late (2-8 weeks): GI scarring/strictures. Serum iron >500 μg/dL: severe toxicity. Antidote: deferoxamine (iron chelator — urine turns vin rosé/red-brown). Abdominal X-ray may show iron tablets. Reference: Harrison — Iron Poisoning.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG 2020",
+      "previousYear": true,
+      "conceptTag": "Iron Poisoning Stages",
+      "tags": "Medicine,Poisoning,PYQ"
+    },
+    {
+      "questionText": "Lead poisoning in children classically presents with:",
+      "optionA": "Only anemia",
+      "optionB": "Abdominal colic, constipation, lead lines on gums (Burton lines), basophilic stippling on blood smear, wrist/foot drop (adults), encephalopathy (children)",
+      "optionC": "Only renal failure",
+      "optionD": "Only bone pain",
+      "correctAnswer": "B",
+      "explanation": "Lead poisoning: GI (colicky abdominal pain, constipation), neurologic (encephalopathy in children — most dangerous, peripheral neuropathy/wrist drop in adults), hematologic (microcytic anemia, basophilic stippling, ringed sideroblasts, inhibits ALA dehydratase and ferrochelatase), renal (Fanconi-like), Burton lines (blue-black line on gingival margin). Diagnosis: blood lead level (>5 μg/dL: elevated). Treatment: chelation — EDTA (CaNa2EDTA), succimer (DMSA — oral, children), dimercaprol (BAL). Reference: Harrison — Lead Poisoning.",
+      "difficulty": "EASY",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Lead Poisoning Clinical Features",
+      "tags": "Medicine,Poisoning"
+    },
+    {
+      "questionText": "Flumazenil is the specific antidote for overdose of:",
+      "optionA": "Opioids",
+      "optionB": "Benzodiazepines (competitive antagonist at GABA-A benzodiazepine site — caution: may precipitate seizures)",
+      "optionC": "Alcohol",
+      "optionD": "Barbiturates",
+      "correctAnswer": "B",
+      "explanation": "Flumazenil: competitive antagonist at benzodiazepine binding site on GABA-A receptor. Reverses sedation and respiratory depression from benzodiazepine overdose. Caution: (1) May precipitate seizures in chronic benzodiazepine users, (2) May unmask co-ingested proconvulsant drugs, (3) Short half-life (risk of re-sedation). Not used routinely in undifferentiated overdose. Benzodiazepines alone rarely fatal in overdose (unlike combined with opioids/alcohol). Naloxone: opioid antidote. NAC: acetaminophen. Reference: Harrison — Flumazenil.",
+      "difficulty": "EASY",
+      "source": "NEET PG 2019",
+      "previousYear": true,
+      "conceptTag": "Benzodiazepine Antidote",
+      "tags": "Medicine,Poisoning,PYQ"
     }
   ]
 }

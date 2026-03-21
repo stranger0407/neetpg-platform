@@ -168,6 +168,48 @@
       "previousYear": false,
       "conceptTag": "ICU Supportive Care",
       "tags": "Medicine,Critical Care"
+    },
+    {
+      "questionText": "The Surviving Sepsis Campaign hour-1 bundle includes all EXCEPT:",
+      "optionA": "Measure lactate",
+      "optionB": "Obtain blood cultures before antibiotics",
+      "optionC": "Administer steroids to all patients immediately",
+      "optionD": "Administer broad-spectrum antibiotics and begin rapid fluid resuscitation",
+      "correctAnswer": "C",
+      "explanation": "Hour-1 bundle: (1) Measure lactate (re-measure if >2), (2) Obtain blood cultures before antibiotics, (3) Administer broad-spectrum antibiotics, (4) Begin rapid 30 mL/kg crystalloid for hypotension or lactate ≥4, (5) Apply vasopressors if hypotensive during/after fluid resuscitation (target MAP ≥65). Steroids are NOT routine — reserved for refractory shock (stress-dose hydrocortisone). Procalcitonin: may guide antibiotic duration. qSOFA: rapid bedside screen (≥2 of: RR≥22, altered mentation, SBP≤100). Reference: Harrison — Surviving Sepsis.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG 2020",
+      "previousYear": true,
+      "conceptTag": "Sepsis Bundle Hour-1",
+      "tags": "Medicine,Critical Care,PYQ"
+    },
+    {
+      "questionText": "The most reliable predictor for successful weaning from mechanical ventilation is:",
+      "optionA": "Patient age",
+      "optionB": "Rapid shallow breathing index (RSBI = f/VT) <105 breaths/min/L during spontaneous breathing trial",
+      "optionC": "Duration of ventilation alone",
+      "optionD": "Blood glucose level",
+      "correctAnswer": "B",
+      "explanation": "RSBI (Rapid Shallow Breathing Index): respiratory rate (f) divided by tidal volume (VT in liters) during a spontaneous breathing trial (SBT). RSBI <105: predicts successful extubation (high sensitivity). SBT: 30-120 min on T-piece or low PS. Criteria for weaning readiness: improving underlying condition, adequate oxygenation (FiO2 ≤40%, PEEP ≤5-8), hemodynamic stability, ability to breathe spontaneously, mental alertness. Cuff leak test: assesses for laryngeal edema. Reference: Harrison — Ventilator Weaning.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Ventilator Weaning RSBI",
+      "tags": "Medicine,Critical Care"
+    },
+    {
+      "questionText": "Brain death is confirmed by demonstrating:",
+      "optionA": "Deep coma only",
+      "optionB": "Absent brainstem reflexes (pupillary, corneal, oculocephalic, gag, cough) AND positive apnea test (no respiratory effort with PaCO2 >60 mmHg)",
+      "optionC": "Flat EEG alone is sufficient",
+      "optionD": "Hypothermia",
+      "correctAnswer": "B",
+      "explanation": "Brain death: irreversible cessation of all brain function including brainstem. Clinical criteria: (1) Known irreversible cause, (2) Exclude confounders (hypothermia <32°C, drugs, metabolic derangements), (3) Absent brainstem reflexes: fixed dilated pupils, absent corneal reflex, absent oculocephalic/oculovestibular (caloric), absent gag/cough, (4) Positive apnea test: no respiratory effort when PaCO2 rises >60 mmHg or >20 above baseline. Confirmatory tests (if clinical exam limited): cerebral angiography, nuclear scan, EEG (supportive, not sufficient alone). Reference: Harrison — Brain Death.",
+      "difficulty": "HARD",
+      "source": "NEET PG 2019",
+      "previousYear": true,
+      "conceptTag": "Brain Death Criteria",
+      "tags": "Medicine,Critical Care,PYQ,Neurology"
     }
   ]
 }

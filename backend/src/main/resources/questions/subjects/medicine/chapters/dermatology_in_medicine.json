@@ -168,6 +168,48 @@
       "previousYear": true,
       "conceptTag": "Drug Reactions",
       "tags": "Medicine,Dermatology in Medicine,PYQ,Emergency"
+    },
+    {
+      "questionText": "Toxic epidermal necrolysis (TEN) differs from Stevens-Johnson syndrome (SJS) primarily by:",
+      "optionA": "Causative agents",
+      "optionB": "Extent of skin detachment (TEN: >30% BSA involved vs SJS: <10% BSA) — TEN is the more severe form with higher mortality",
+      "optionC": "Presence of mucous membrane involvement",
+      "optionD": "Both are identical",
+      "correctAnswer": "B",
+      "explanation": "SJS/TEN spectrum: severe cutaneous adverse drug reactions. Classification by BSA detachment: SJS <10%, SJS-TEN overlap 10-30%, TEN >30%. Both: widespread epidermal necrosis, mucosal involvement (oral, ocular, genital), full-thickness epidermal detachment (positive Nikolsky sign). TEN mortality: 25-35%. Common drugs: carbamazepine, phenytoin, allopurinol, sulfonamides, NSAIDs, nevirapine. HLA associations: HLA-B*15:02 (carbamazepine), HLA-B*58:01 (allopurinol). Management: stop offending drug, ICU/burn unit, supportive care. SCORTEN: prognostic scoring. Reference: Harrison — SJS/TEN.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG 2020",
+      "previousYear": true,
+      "conceptTag": "TEN vs SJS BSA",
+      "tags": "Medicine,Dermatology in Medicine,PYQ"
+    },
+    {
+      "questionText": "Erythema multiforme (EM) is most commonly triggered by:",
+      "optionA": "Drug allergy always",
+      "optionB": "Herpes simplex virus (HSV) infection — presenting as target/iris lesions",
+      "optionC": "Bacterial infection only",
+      "optionD": "Autoimmune disease",
+      "correctAnswer": "B",
+      "explanation": "Erythema multiforme: acute, self-limited skin condition. Classic lesion: target/iris lesion (3 concentric zones — central dusky/vesicular, pale edematous ring, peripheral erythema). EM minor: skin only, self-limited. Most common trigger: HSV (accounts for ~90% of recurrent EM). Drug-induced EM is less common than previously thought (drugs more commonly cause SJS/TEN). Acral distribution (hands, feet, elbows, knees). Mucosal involvement: EM major. Recurrent EM: prophylactic acyclovir if HSV-triggered. Reference: Harrison — Erythema Multiforme.",
+      "difficulty": "EASY",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "EM Target Lesion HSV",
+      "tags": "Medicine,Dermatology in Medicine"
+    },
+    {
+      "questionText": "Sweet syndrome (acute febrile neutrophilic dermatosis) is associated with:",
+      "optionA": "Only fungal infections",
+      "optionB": "Hematologic malignancies (especially AML), inflammatory bowel disease, and upper respiratory infections",
+      "optionC": "Only trauma",
+      "optionD": "Vitamin deficiency",
+      "correctAnswer": "B",
+      "explanation": "Sweet syndrome: tender, erythematous plaques/nodules with fever, neutrophilia, and dense neutrophilic infiltrate on biopsy. Associations: (1) Idiopathic (most common), (2) Malignancy-associated (AML — most common paraneoplastic association, MDS), (3) Drug-induced (G-CSF), (4) Inflammatory (IBD, infections). Responds dramatically to corticosteroids. Pathergy may be present. Consider malignancy workup if: atypical/bullous lesions, cytopenias, recurrent episodes. Reference: Harrison — Sweet Syndrome.",
+      "difficulty": "HARD",
+      "source": "NEET PG 2019",
+      "previousYear": true,
+      "conceptTag": "Sweet Syndrome Neutrophilic AML",
+      "tags": "Medicine,Dermatology in Medicine,PYQ"
     }
   ]
 }
