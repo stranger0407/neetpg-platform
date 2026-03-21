@@ -4,9 +4,12 @@ import com.neetpg.platform.dto.QuestionDto;
 import com.neetpg.platform.entity.Chapter;
 import com.neetpg.platform.entity.Subject;
 import com.neetpg.platform.service.AdminService;
+import com.neetpg.platform.repository.SubjectRepository;
+import com.neetpg.platform.util.DatabaseSeeder;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +21,12 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
+@Slf4j
 public class AdminController {
 
     private final AdminService adminService;
+    private final SubjectRepository subjectRepository;
+    private final DatabaseSeeder databaseSeeder;
 
     @PostMapping("/questions")
     public ResponseEntity<QuestionDto.AdminQuestionResponse> createQuestion(
@@ -47,9 +53,35 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("imported", count));
     }
 
-    @PostMapping("/subjects")
-    public ResponseEntity<Subject> createSubject(@RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(adminService.createSubject(body.get("name")));
+    @PostMapping("/chapters")
+    public ResponseEntity<Chapter> createChapter(@RequestBody ChapterRequest request) {
+        return ResponseEntity.ok(adminService.createChapter(request.getName(), request.getSubjectId()));
+    }
+
+    @PostMapping("/seed-database")
+    public ResponseEntity<String> seedDatabase() {
+        try {
+            long count = subjectRepository.count();
+            if (count > 0) {
+                return ResponseEntity.ok("Database already has " + count + " subjects. Skipping.");
+            }
+            
+            log.info("Manual database seeding initiated...");
+            databaseSeeder.seedManually();
+            
+            count = subjectRepository.count();
+            return ResponseEntity.ok("✅ Database seeded! Total subjects: " + count);
+        } catch (Exception e) {
+            log.error("Seeding failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("❌ Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/database-status")
+    public ResponseEntity<String> databaseStatus() {
+        long subjects = subjectRepository.count();
+        return ResponseEntity.ok("Database Status:\nSubjects: " + subjects + 
+                "\nStatus: " + (subjects > 0 ? "✅ Normal" : "⚠️ Empty - POST /api/admin/seed-database"));
     }
 
     @PostMapping("/chapters")
