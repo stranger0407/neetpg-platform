@@ -37,9 +37,9 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        UserPrincipal principal = UserPrincipal.create(user);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
 

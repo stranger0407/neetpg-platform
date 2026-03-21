@@ -12,6 +12,9 @@ import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
+       @Query("SELECT q.id FROM Question q JOIN q.chapter c JOIN c.subject s ORDER BY q.id")
+       List<Long> findEligibleQuestionIdsForDailyChallenge();
+
     List<Question> findByChapterId(Long chapterId);
 
     @Query("SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE q.id = :id")

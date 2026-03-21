@@ -46,6 +46,25 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Validate Vercel SPA rewrite config
+        run: |
+          node -e "const fs=require('fs'); const p='vercel.json'; const cfg=JSON.parse(fs.readFileSync(p,'utf8')); const rw=cfg.rewrites||[]; const ok=rw.some(r=>r.source==='/(.*)' && r.destination==='/index.html'); if(!ok){console.error('Missing SPA rewrite /(.*) -> /index.html in vercel.json'); process.exit(1);} console.log('Vercel SPA rewrite config OK');"
+
+      - name: Smoke test frontend deep links (local preview)
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 &
+          PREVIEW_PID=$!
+          trap "kill $PREVIEW_PID" EXIT
+          sleep 5
+          for route in / /login /register /dashboard /daily-challenge /subjects; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:4173$route")
+            echo "$route -> $code"
+            if [ "$code" != "200" ]; then
+              echo "Route smoke failed for $route"
+              exit 1
+            fi
+          done
+
   docker-build:
     needs: [backend-test, frontend-build]
     runs-on: ubuntu-latest

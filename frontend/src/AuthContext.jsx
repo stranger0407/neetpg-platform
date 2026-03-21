@@ -1,22 +1,18 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import api from './api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user');
-    if (stored) {
-      setUser(JSON.parse(stored));
-    }
-    setLoading(false);
-  }, []);
+    return stored ? JSON.parse(stored) : null;
+  });
+  const [loading] = useState(false);
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+    const normalizedEmail = email.trim().toLowerCase();
+    const res = await api.post('/auth/login', { email: normalizedEmail, password });
     const data = res.data;
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data));
@@ -25,7 +21,8 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (name, email, password) => {
-    const res = await api.post('/auth/register', { name, email, password });
+    const normalizedEmail = email.trim().toLowerCase();
+    const res = await api.post('/auth/register', { name: name.trim(), email: normalizedEmail, password });
     const data = res.data;
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data));
@@ -46,6 +43,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');

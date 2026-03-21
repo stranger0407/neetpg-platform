@@ -25,6 +25,7 @@ public class DailyChallengeService {
     private final QuizSessionRepository quizSessionRepository;
     private final AttemptRepository attemptRepository;
     private final UserRepository userRepository;
+    private final QuestionPoolInitializer questionPoolInitializer;
 
     /**
      * Get today's challenge info for the user.
@@ -32,15 +33,21 @@ public class DailyChallengeService {
      */
     public DailyChallengeDto.ChallengeInfo getTodaysChallenge(Long userId) {
         LocalDate today = LocalDate.now();
+        List<Question> questions = getDailyQuestions(today);
+
+        if (questions.isEmpty()) {
+            throw new BadRequestException("Daily challenge is unavailable: no questions configured");
+        }
+
         Optional<QuizSession> existing = quizSessionRepository
-                .findByUserIdAndQuizTypeAndChallengeDate(userId, QuizSession.QuizType.DAILY_CHALLENGE, today);
+            .findByUserIdAndChallengeDate(userId, today);
 
         if (existing.isPresent() && existing.get().isCompleted()) {
             // Already attempted and completed – return result
             QuizSession session = existing.get();
             return DailyChallengeDto.ChallengeInfo.builder()
                     .date(today)
-                    .questionCount(QUESTIONS_PER_CHALLENGE)
+                    .questionCount(questions.size())
                     .timeLimitMinutes(TIME_LIMIT_MINUTES)
                     .alreadyAttempted(true)
                     .sessionId(session.getId())
@@ -51,10 +58,9 @@ public class DailyChallengeService {
         if (existing.isPresent()) {
             // Started but not completed – return questions with the existing session
             QuizSession session = existing.get();
-            List<Question> questions = getDailyQuestions(today);
             return DailyChallengeDto.ChallengeInfo.builder()
                     .date(today)
-                    .questionCount(QUESTIONS_PER_CHALLENGE)
+                    .questionCount(questions.size())
                     .timeLimitMinutes(TIME_LIMIT_MINUTES)
                     .alreadyAttempted(false)
                     .sessionId(session.getId())
@@ -63,10 +69,9 @@ public class DailyChallengeService {
         }
 
         // Not attempted yet – just return challenge info
-        List<Question> questions = getDailyQuestions(today);
         return DailyChallengeDto.ChallengeInfo.builder()
                 .date(today)
-                .questionCount(QUESTIONS_PER_CHALLENGE)
+                .questionCount(questions.size())
                 .timeLimitMinutes(TIME_LIMIT_MINUTES)
                 .alreadyAttempted(false)
                 .questions(mapQuestions(questions))
@@ -79,10 +84,15 @@ public class DailyChallengeService {
     @Transactional
     public DailyChallengeDto.ChallengeInfo startChallenge(Long userId) {
         LocalDate today = LocalDate.now();
+        List<Question> questions = getDailyQuestions(today);
+
+        if (questions.isEmpty()) {
+            throw new BadRequestException("Daily challenge is unavailable: no questions configured");
+        }
 
         // Check if already started
         Optional<QuizSession> existing = quizSessionRepository
-                .findByUserIdAndQuizTypeAndChallengeDate(userId, QuizSession.QuizType.DAILY_CHALLENGE, today);
+            .findByUserIdAndChallengeDate(userId, today);
 
         if (existing.isPresent() && existing.get().isCompleted()) {
             throw new BadRequestException("You have already completed today's challenge");
@@ -91,10 +101,9 @@ public class DailyChallengeService {
         if (existing.isPresent()) {
             // Already started, return existing session
             QuizSession session = existing.get();
-            List<Question> questions = getDailyQuestions(today);
             return DailyChallengeDto.ChallengeInfo.builder()
                     .date(today)
-                    .questionCount(QUESTIONS_PER_CHALLENGE)
+                    .questionCount(questions.size())
                     .timeLimitMinutes(TIME_LIMIT_MINUTES)
                     .alreadyAttempted(false)
                     .sessionId(session.getId())
@@ -107,16 +116,16 @@ public class DailyChallengeService {
 
         QuizSession session = QuizSession.builder()
                 .user(user)
-                .quizType(QuizSession.QuizType.DAILY_CHALLENGE)
-                .totalQuestions(QUESTIONS_PER_CHALLENGE)
+            // Persist using a DB-safe enum value; challenge sessions are identified by challengeDate.
+            .quizType(QuizSession.QuizType.PRACTICE)
+            .totalQuestions(questions.size())
                 .challengeDate(today)
                 .build();
         session = quizSessionRepository.save(session);
 
-        List<Question> questions = getDailyQuestions(today);
         return DailyChallengeDto.ChallengeInfo.builder()
                 .date(today)
-                .questionCount(QUESTIONS_PER_CHALLENGE)
+            .questionCount(questions.size())
                 .timeLimitMinutes(TIME_LIMIT_MINUTES)
                 .alreadyAttempted(false)
                 .sessionId(session.getId())
@@ -138,12 +147,15 @@ public class DailyChallengeService {
         if (session.isCompleted()) {
             throw new BadRequestException("Challenge already submitted");
         }
-        if (session.getQuizType() != QuizSession.QuizType.DAILY_CHALLENGE) {
+        if (session.getChallengeDate() == null) {
             throw new BadRequestException("Not a daily challenge session");
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = session.getChallengeDate() != null ? session.getChallengeDate() : LocalDate.now();
         List<Question> questions = getDailyQuestions(today);
+        if (questions.isEmpty()) {
+            throw new BadRequestException("Daily challenge questions unavailable for the session date");
+        }
         Map<Long, Question> questionMap = questions.stream()
                 .collect(Collectors.toMap(Question::getId, Function.identity()));
 
@@ -190,7 +202,7 @@ public class DailyChallengeService {
         }
 
         // Count questions that weren't in the submitted answers as skipped
-        skipped += (QUESTIONS_PER_CHALLENGE - answeredIds.size());
+        skipped += Math.max(0, questions.size() - answeredIds.size());
 
         session.setCorrect(correct);
         session.setIncorrect(incorrect);
@@ -247,21 +259,20 @@ public class DailyChallengeService {
      * Uses the date as a seed so all users get the same questions for a given day.
      */
     private List<Question> getDailyQuestions(LocalDate date) {
-        long totalQuestions = questionRepository.count();
-        if (totalQuestions == 0) return Collections.emptyList();
+        questionPoolInitializer.ensureMinimumQuestionPool(QUESTIONS_PER_CHALLENGE);
+
+        List<Long> eligibleIds = questionRepository.findEligibleQuestionIdsForDailyChallenge();
+        if (eligibleIds.isEmpty()) return Collections.emptyList();
 
         // Use date to create a deterministic seed
         Random random = new Random(date.hashCode());
 
-        // Get all question IDs and deterministically pick QUESTIONS_PER_CHALLENGE
-        List<Long> allIds = questionRepository.findAll().stream()
-                .map(Question::getId)
-                .collect(Collectors.toList());
+        // Deterministically select from eligible IDs so all users get same set for the day.
+        List<Long> shuffledIds = new ArrayList<>(eligibleIds);
+        Collections.shuffle(shuffledIds, random);
 
-        Collections.shuffle(allIds, random);
-
-        int count = Math.min(QUESTIONS_PER_CHALLENGE, allIds.size());
-        List<Long> selectedIds = allIds.subList(0, count);
+        int count = Math.min(QUESTIONS_PER_CHALLENGE, shuffledIds.size());
+        List<Long> selectedIds = shuffledIds.subList(0, count);
 
         return questionRepository.findByIdInWithChapterAndSubject(selectedIds);
     }
