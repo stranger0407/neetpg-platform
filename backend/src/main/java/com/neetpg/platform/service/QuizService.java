@@ -25,6 +25,7 @@ public class QuizService {
     private final BookmarkRepository bookmarkRepository;
     private final UserRepository userRepository;
     private final SpacedRepetitionService spacedRepetitionService;
+    private final QuestionPoolInitializer questionPoolInitializer;
 
     @Transactional
     public Map<String, Object> startQuiz(Long userId, QuizDto.StartQuizRequest request) {
@@ -32,6 +33,8 @@ public class QuizService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         int count = request.getQuestionCount() != null ? request.getQuestionCount() : 20;
+        questionPoolInitializer.ensureMinimumQuestionPool(count);
+
         QuizSession.QuizType quizType = QuizSession.QuizType.valueOf(
                 request.getQuizType() != null ? request.getQuizType() : "PRACTICE");
 
@@ -40,13 +43,21 @@ public class QuizService {
 
         switch (quizType) {
             case PRACTICE:
-                if (request.getChapterId() == null) {
-                    throw new BadRequestException("Chapter ID required for practice mode");
+                if (request.getChapterId() != null) {
+                    chapter = chapterRepository.findById(request.getChapterId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+                    questions = questionRepository.findRandomByChapterId(
+                            request.getChapterId(), PageRequest.of(0, count));
+                } else {
+                    questions = Collections.emptyList();
                 }
-                chapter = chapterRepository.findById(request.getChapterId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-                questions = questionRepository.findRandomByChapterId(
-                        request.getChapterId(), PageRequest.of(0, count));
+
+                // If chapter-specific practice has no data (or no chapter was provided),
+                // gracefully fall back to mixed practice so users can still attempt questions.
+                if (questions.isEmpty()) {
+                    chapter = null;
+                    questions = questionRepository.findRandom(PageRequest.of(0, count));
+                }
                 break;
             case RANDOM:
                 questions = questionRepository.findRandom(PageRequest.of(0, count));

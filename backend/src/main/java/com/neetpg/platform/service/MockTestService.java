@@ -20,9 +20,12 @@ public class MockTestService {
     private final UserRepository userRepository;
     private final QuizSessionRepository quizSessionRepository;
     private final BookmarkRepository bookmarkRepository;
+        private final QuestionPoolInitializer questionPoolInitializer;
 
     @Transactional
     public Map<String, Object> startMockTest(Long userId) {
+                questionPoolInitializer.ensureMinimumQuestionPool(200);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 

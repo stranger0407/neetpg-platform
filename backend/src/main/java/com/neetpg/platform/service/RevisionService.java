@@ -31,7 +31,6 @@ public class RevisionService {
 
         int weakCount = (int) (totalQuestions * 0.6);      // 60% from weak topics
         int incorrectCount = (int) (totalQuestions * 0.2);  // 20% from incorrect
-        int randomCount = totalQuestions - weakCount - incorrectCount; // 20% random
 
         Set<Long> selectedIds = new LinkedHashSet<>();
 

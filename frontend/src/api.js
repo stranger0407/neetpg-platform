@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-// Azure backend endpoint
-const API_BASE = 'https://neetpg-backend.azurewebsites.net';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 const api = axios.create({
   baseURL: `${API_BASE}/api`,
@@ -21,7 +20,9 @@ api.interceptors.response.use(
   (error) => {
     const url = error.config?.url || '';
     const isAuthRoute = url.includes('/auth/');
-    if (error.response?.status === 401 && !isAuthRoute) {
+    const status = error.response?.status;
+    const isUnauthorized = status === 401 || status === 403;
+    if (isUnauthorized && !isAuthRoute) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

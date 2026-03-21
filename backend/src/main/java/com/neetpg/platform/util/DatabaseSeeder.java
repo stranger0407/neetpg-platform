@@ -5,6 +5,7 @@ import com.neetpg.platform.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +27,20 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.seed.backfill-on-startup:false}")
+    private boolean backfillOnStartup;
+
+    @Value("${app.seed.admin.email:admin@neetpg.com}")
+    private String adminEmail;
+
+    @Value("${app.seed.admin.password:admin123}")
+    private String adminPassword;
+
+    @Value("${app.seed.force-admin-password-reset:false}")
+    private boolean forceAdminPasswordReset;
+
     private static final Map<String, List<String>> SUBJECT_CHAPTERS = new LinkedHashMap<>();
+    private static final Map<String, String> SUBJECT_RESOURCE_FILES = new HashMap<>();
 
     static {
         SUBJECT_CHAPTERS.put("Anatomy", List.of(
@@ -147,27 +162,78 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Pain Management", "ICU and Critical Care",
             "Cardiopulmonary Resuscitation"
         ));
+
+        SUBJECT_RESOURCE_FILES.put("Anatomy", "anatomy.json");
+        SUBJECT_RESOURCE_FILES.put("Physiology", "physiology.json");
+        SUBJECT_RESOURCE_FILES.put("Biochemistry", "biochemistry.json");
+        SUBJECT_RESOURCE_FILES.put("Pathology", "pathology.json");
+        SUBJECT_RESOURCE_FILES.put("Pharmacology", "pharmacology.json");
+        SUBJECT_RESOURCE_FILES.put("Microbiology", "microbiology.json");
+        SUBJECT_RESOURCE_FILES.put("Forensic Medicine", "forensics.json");
+        SUBJECT_RESOURCE_FILES.put("Community Medicine", "psm.json");
+        SUBJECT_RESOURCE_FILES.put("ENT", "ent.json");
+        SUBJECT_RESOURCE_FILES.put("Ophthalmology", "ophthalmology.json");
+        SUBJECT_RESOURCE_FILES.put("Medicine", "medicine.json");
+        SUBJECT_RESOURCE_FILES.put("Surgery", "surgery.json");
+        SUBJECT_RESOURCE_FILES.put("Obstetrics and Gynecology", "obgyn.json");
+        SUBJECT_RESOURCE_FILES.put("Pediatrics", "pediatrics.json");
+        SUBJECT_RESOURCE_FILES.put("Dermatology", "dermatology.json");
     }
 
     @Override
-    @Transactional
     public void run(String... args) {
-        if (subjectRepository.count() > 0) {
-            log.info("Database already seeded, skipping...");
+        ensureDefaultUsers();
+
+        if (!backfillOnStartup) {
+            log.info("Startup resource backfill is disabled (app.seed.backfill-on-startup=false)");
             return;
         }
 
-        log.info("Starting database seeding...");
+        backfillFromResources();
+    }
 
-        // Create admin user
-        if (!userRepository.existsByEmail("admin@neetpg.com")) {
+    public void backfillFromResources() {
+        long existingQuestionCount = questionRepository.count();
+        if (existingQuestionCount > 0) {
+            log.info("Questions already exist ({}). Backfilling only missing chapter question pools...", existingQuestionCount);
+        }
+
+        log.info("Starting database seeding for missing question pool...");
+
+        ensureDefaultUsers();
+
+        seedSubjectsChaptersAndQuestions();
+    }
+
+    private void ensureDefaultUsers() {
+        // Create admin user or reset password when explicitly requested.
+        Optional<User> adminUserOpt = userRepository.findByEmail(adminEmail);
+        if (adminUserOpt.isEmpty()) {
             userRepository.save(User.builder()
                     .name("Admin")
-                    .email("admin@neetpg.com")
-                    .password(passwordEncoder.encode("admin123"))
+                    .email(adminEmail)
+                    .password(passwordEncoder.encode(adminPassword))
                     .role(User.Role.ADMIN)
                     .build());
-            log.info("Admin user created: admin@neetpg.com / admin123");
+            log.info("Admin user created: {}", adminEmail);
+        } else {
+            User adminUser = adminUserOpt.get();
+            boolean updated = false;
+
+            if (adminUser.getRole() != User.Role.ADMIN) {
+                adminUser.setRole(User.Role.ADMIN);
+                updated = true;
+            }
+
+            if (forceAdminPasswordReset) {
+                adminUser.setPassword(passwordEncoder.encode(adminPassword));
+                updated = true;
+                log.info("Admin password reset was requested by config for: {}", adminEmail);
+            }
+
+            if (updated) {
+                userRepository.save(adminUser);
+            }
         }
 
         // Create demo student
@@ -180,6 +246,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .build());
             log.info("Demo student created: student@neetpg.com / student123");
         }
+    }
+
+    @Transactional
+    protected void seedSubjectsChaptersAndQuestions() {
 
         Random random = new Random(42);
         int totalQuestions = 0;
@@ -190,31 +260,57 @@ public class DatabaseSeeder implements CommandLineRunner {
             String subjectName = entry.getKey();
             List<String> chapters = entry.getValue();
 
-            Subject subject = subjectRepository.save(
-                    Subject.builder().name(subjectName).build());
-            log.info("Created subject: {}", subjectName);
+            Subject subject = subjectRepository.findByName(subjectName)
+                .orElseGet(() -> {
+                Subject created = subjectRepository.save(Subject.builder().name(subjectName).build());
+                log.info("Created subject: {}", subjectName);
+                return created;
+                });
 
-            InputStream is = getClass().getResourceAsStream("/questions/" + subjectName.toLowerCase() + ".json");
+            Map<String, Chapter> existingChapters = chapterRepository.findBySubjectId(subject.getId()).stream()
+                .collect(Collectors.toMap(ch -> normalizeKey(ch.getName()), ch -> ch, (a, b) -> a));
+
             SubjectData subjectData = null;
-            if (is != null) {
-                try {
+            String resourceFile = SUBJECT_RESOURCE_FILES.getOrDefault(subjectName, subjectName.toLowerCase(Locale.ROOT) + ".json");
+            try (InputStream is = getClass().getResourceAsStream("/questions/" + resourceFile)) {
+                if (is != null) {
                     subjectData = mapper.readValue(is, SubjectData.class);
-                    log.info("Loaded real questions for subject: {}", subjectName);
-                } catch (Exception e) {
-                    log.error("Failed to parse JSON for subject: {}", subjectName, e);
+                    log.info("Loaded real questions for subject: {} from {}", subjectName, resourceFile);
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse JSON for subject: {} from {}", subjectName, resourceFile, e);
+            }
+
+            LinkedHashSet<String> chapterNamesToSeed = new LinkedHashSet<>(chapters);
+            if (subjectData != null && subjectData.getChapters() != null) {
+                for (ChapterData chapterData : subjectData.getChapters()) {
+                    if (chapterData != null && chapterData.getName() != null && !chapterData.getName().isBlank()) {
+                        chapterNamesToSeed.add(chapterData.getName().trim());
+                    }
                 }
             }
 
-            for (String chapterName : chapters) {
-                Chapter chapter = chapterRepository.save(
-                        Chapter.builder().name(chapterName).subject(subject).build());
+            for (String chapterName : chapterNamesToSeed) {
+                String chapterKey = normalizeKey(chapterName);
+                Chapter chapter = existingChapters.get(chapterKey);
+                if (chapter == null) {
+                    chapter = chapterRepository.save(
+                            Chapter.builder().name(chapterName).subject(subject).build());
+                    existingChapters.put(chapterKey, chapter);
+                }
+
+                if (questionRepository.countByChapterId(chapter.getId()) > 0) {
+                    continue;
+                }
 
                 List<Question> questions = new ArrayList<>();
                 boolean usedRealData = false;
 
                 if (subjectData != null && subjectData.getChapters() != null) {
                     Optional<ChapterData> chapterDataOpt = subjectData.getChapters().stream()
-                            .filter(ch -> ch.getName().equals(chapterName)).findFirst();
+                            .filter(ch -> ch.getName() != null)
+                            .filter(ch -> normalizeKey(ch.getName()).equals(chapterKey))
+                            .findFirst();
                     
                     if (chapterDataOpt.isPresent() && chapterDataOpt.get().getQuestions() != null && !chapterDataOpt.get().getQuestions().isEmpty()) {
                         for (QuestionData qd : chapterDataOpt.get().getQuestions()) {
@@ -238,7 +334,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 }
 
                 if (!usedRealData) {
-                    int questionCount = 300 + random.nextInt(50);
+                    int questionCount = 30 + random.nextInt(10);
                     for (int i = 1; i <= questionCount; i++) {
                         Question.Difficulty difficulty = switch (random.nextInt(10)) {
                             case 0, 1, 2 -> Question.Difficulty.EASY;
@@ -281,7 +377,11 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
         }
 
-        log.info("Database seeding completed! Total questions: {}", totalQuestions);
+        log.info("Database seeding completed! Total questions created in this run: {}", totalQuestions);
+    }
+
+    private static String normalizeKey(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 
     private String generateQuestionText(String subject, String chapter, int num, Question.Difficulty diff) {
