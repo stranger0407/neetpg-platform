@@ -210,6 +210,48 @@
       "previousYear": false,
       "conceptTag": "Bile acid CYP7A1 rate-limiting",
       "tags": "Biochemistry,Lipid Metabolism"
+    },
+    {
+      "questionText": "Deficiency of lipoprotein lipase or ApoC-II classically causes marked elevation of:",
+      "optionA": "LDL only",
+      "optionB": "HDL only",
+      "optionC": "Chylomicrons and severe hypertriglyceridemia",
+      "optionD": "Lipoprotein(a) only",
+      "correctAnswer": "C",
+      "explanation": "Correct answer: C. LPL and ApoC-II are essential for hydrolysis of triglycerides in chylomicrons/VLDL. Defects produce massive TG elevation and pancreatitis risk.",
+      "difficulty": "HARD",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "LPL ApoCII deficiency",
+      "tags": "Biochemistry,Lipid Metabolism"
+    },
+    {
+      "questionText": "Peroxisomal beta-oxidation is especially important for:",
+      "optionA": "Very long-chain fatty acids",
+      "optionB": "Only short-chain fatty acids",
+      "optionC": "Only odd-chain fatty acids",
+      "optionD": "Ketone body utilization",
+      "correctAnswer": "A",
+      "explanation": "Correct answer: A. Peroxisomes shorten VLCFA before further mitochondrial oxidation. Defects (e.g., Zellweger spectrum) cause VLCFA accumulation and neurologic dysfunction.",
+      "difficulty": "MEDIUM",
+      "source": "Lippincott",
+      "previousYear": false,
+      "conceptTag": "Peroxisomal oxidation",
+      "tags": "Biochemistry,Lipid Metabolism"
+    },
+    {
+      "questionText": "CPT-I is physiologically inhibited by:",
+      "optionA": "Acetyl-CoA",
+      "optionB": "Malonyl-CoA",
+      "optionC": "Carnitine",
+      "optionD": "NADH",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Malonyl-CoA inhibits CPT-I, preventing simultaneous fatty acid synthesis and oxidation in fed state.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "CPT1 malonyl CoA",
+      "tags": "Biochemistry,Lipid Metabolism"
     }
   ]
 }

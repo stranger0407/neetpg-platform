@@ -210,6 +210,48 @@
       "previousYear": true,
       "conceptTag": "OTC deficiency X-linked",
       "tags": "Biochemistry,Amino Acid Metabolism"
+    },
+    {
+      "questionText": "The immediate nitrogen donor in most transamination reactions is eventually collected as:",
+      "optionA": "Alanine only",
+      "optionB": "Glutamate",
+      "optionC": "Ammonium chloride",
+      "optionD": "Urea directly",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Amino groups are funneled to glutamate via transamination; glutamate can undergo oxidative deamination to release free ammonia for urea cycle.",
+      "difficulty": "MEDIUM",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "Transamination funnel",
+      "tags": "Biochemistry,Amino Acid Metabolism"
+    },
+    {
+      "questionText": "Hyperammonemia primarily causes neurotoxicity because excess ammonia in brain drives glutamate toward:",
+      "optionA": "Aspartate",
+      "optionB": "Glutamine",
+      "optionC": "GABA only",
+      "optionD": "Dopamine",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Ammonia detoxification in astrocytes forms glutamine from glutamate, potentially depleting neurotransmitter pools and contributing to cerebral edema.",
+      "difficulty": "HARD",
+      "source": "Lippincott",
+      "previousYear": false,
+      "conceptTag": "Hyperammonemia brain biochemistry",
+      "tags": "Biochemistry,Amino Acid Metabolism"
+    },
+    {
+      "questionText": "The methyl donor formed from methionine and ATP in one-carbon metabolism is:",
+      "optionA": "Homocysteine",
+      "optionB": "S-adenosylmethionine (SAM)",
+      "optionC": "S-adenosylhomocysteine hydrolase",
+      "optionD": "Methylmalonyl-CoA",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. SAM is the universal methyl donor for DNA/RNA/protein/lipid methylation reactions, linking methionine cycle with folate-B12 pathways.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "SAM cycle",
+      "tags": "Biochemistry,Amino Acid Metabolism"
     }
   ]
 }

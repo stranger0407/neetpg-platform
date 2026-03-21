@@ -210,6 +210,48 @@
       "previousYear": true,
       "conceptTag": "Oncogenes gain-of-function",
       "tags": "Biochemistry,Molecular Biology"
+    },
+    {
+      "questionText": "Which DNA repair pathway primarily removes bulky thymine dimers induced by UV radiation?",
+      "optionA": "Mismatch repair",
+      "optionB": "Nucleotide excision repair",
+      "optionC": "Base excision repair",
+      "optionD": "Homologous recombination",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Nucleotide excision repair removes bulky DNA adducts like pyrimidine dimers; defects cause xeroderma pigmentosum with photosensitivity and skin cancer risk.",
+      "difficulty": "MEDIUM",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "NER and UV damage",
+      "tags": "Biochemistry,Molecular Biology"
+    },
+    {
+      "questionText": "Southern blot is used to detect:",
+      "optionA": "Protein",
+      "optionB": "DNA",
+      "optionC": "RNA",
+      "optionD": "Lipids",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Southern blot detects specific DNA sequences. Northern detects RNA, Western detects proteins.",
+      "difficulty": "EASY",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Blotting techniques",
+      "tags": "Biochemistry,Molecular Biology"
+    },
+    {
+      "questionText": "In prokaryotes, the lac operon is induced in the presence of lactose when the repressor:",
+      "optionA": "Binds operator tightly",
+      "optionB": "Is inactivated by allolactose",
+      "optionC": "Is degraded by ribosome",
+      "optionD": "Binds CAP-cAMP only",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Allolactose (inducer) binds lac repressor and reduces operator binding, permitting transcription. CAP-cAMP further enhances expression when glucose is low.",
+      "difficulty": "MEDIUM",
+      "source": "Lippincott",
+      "previousYear": false,
+      "conceptTag": "Lac operon regulation",
+      "tags": "Biochemistry,Molecular Biology"
     }
   ]
 }

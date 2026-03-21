@@ -168,6 +168,48 @@
       "previousYear": false,
       "conceptTag": "Azathioprine 6-MP purine analog",
       "tags": "Biochemistry,Nucleotide Metabolism"
+    },
+    {
+      "questionText": "Orotic aciduria due to UMP synthase deficiency classically presents with megaloblastic anemia and:",
+      "optionA": "Hyperuricemia",
+      "optionB": "No response to folate/B12 alone",
+      "optionC": "Marked ketosis",
+      "optionD": "High ammonia with low orotate",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. UMP synthase deficiency causes pyrimidine synthesis defect with megaloblastic anemia unresponsive to folate/B12 and elevated urinary orotic acid; treated with uridine.",
+      "difficulty": "HARD",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "Orotic aciduria",
+      "tags": "Biochemistry,Nucleotide Metabolism"
+    },
+    {
+      "questionText": "Ribonucleotide reductase is essential because it:",
+      "optionA": "Converts uric acid to allantoin",
+      "optionB": "Generates deoxyribonucleotides from ribonucleotides",
+      "optionC": "Adds phosphate to nucleosides",
+      "optionD": "Hydrolyzes ATP during transcription",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Ribonucleotide reductase catalyzes formation of deoxyribonucleotides required for DNA synthesis; it is inhibited by hydroxyurea.",
+      "difficulty": "MEDIUM",
+      "source": "Lippincott",
+      "previousYear": false,
+      "conceptTag": "Ribonucleotide reductase",
+      "tags": "Biochemistry,Nucleotide Metabolism"
+    },
+    {
+      "questionText": "Allopurinol lowers uric acid mainly by inhibiting:",
+      "optionA": "Adenosine deaminase",
+      "optionB": "HGPRT",
+      "optionC": "Xanthine oxidase",
+      "optionD": "PRPP amidotransferase",
+      "correctAnswer": "C",
+      "explanation": "Correct answer: C. Allopurinol (and oxypurinol) inhibit xanthine oxidase, reducing conversion of hypoxanthine/xanthine to uric acid.",
+      "difficulty": "EASY",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Allopurinol mechanism",
+      "tags": "Biochemistry,Nucleotide Metabolism"
     }
   ]
 }

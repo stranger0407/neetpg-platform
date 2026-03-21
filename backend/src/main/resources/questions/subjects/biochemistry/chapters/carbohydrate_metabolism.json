@@ -280,6 +280,48 @@
       "previousYear": true,
       "conceptTag": "Lactic acidosis causes",
       "tags": "Biochemistry,Carbohydrate Metabolism"
+    },
+    {
+      "questionText": "In fasting state, hepatic glucose output is maintained first predominantly by:",
+      "optionA": "Glycolysis",
+      "optionB": "Glycogenolysis followed by gluconeogenesis",
+      "optionC": "Hexose monophosphate shunt",
+      "optionD": "Lipogenesis",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Early fasting relies on hepatic glycogenolysis; as fasting prolongs, gluconeogenesis becomes dominant. Glycolysis/lipogenesis are fed-state pathways.",
+      "difficulty": "MEDIUM",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "Fed fasting glucose regulation",
+      "tags": "Biochemistry,Carbohydrate Metabolism"
+    },
+    {
+      "questionText": "Fructose-2,6-bisphosphate in liver most strongly:",
+      "optionA": "Inhibits PFK-1 and activates FBPase-1",
+      "optionB": "Activates both PFK-1 and FBPase-1",
+      "optionC": "Activates PFK-1 and inhibits fructose-1,6-bisphosphatase",
+      "optionD": "Has no major regulatory role",
+      "correctAnswer": "C",
+      "explanation": "Correct answer: C. F2,6BP is a potent glycolysis promoter and gluconeogenesis suppressor: it activates PFK-1 and inhibits FBPase-1.",
+      "difficulty": "HARD",
+      "source": "Lippincott",
+      "previousYear": false,
+      "conceptTag": "F2,6BP regulation",
+      "tags": "Biochemistry,Carbohydrate Metabolism"
+    },
+    {
+      "questionText": "Pyruvate carboxylase deficiency would most directly impair formation of:",
+      "optionA": "Acetyl-CoA from pyruvate",
+      "optionB": "Oxaloacetate from pyruvate",
+      "optionC": "Lactate from pyruvate",
+      "optionD": "Alanine from pyruvate",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Pyruvate carboxylase converts pyruvate to oxaloacetate (biotin-dependent), crucial for gluconeogenesis and anaplerosis.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Pyruvate carboxylase",
+      "tags": "Biochemistry,Carbohydrate Metabolism"
     }
   ]
 }

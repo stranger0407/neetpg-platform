@@ -294,6 +294,48 @@
       "previousYear": true,
       "conceptTag": "Feedback inhibition",
       "tags": "Biochemistry,Enzymes"
+    },
+    {
+      "questionText": "Aspirin irreversibly inhibits cyclooxygenase by covalent acetylation. This is best classified as:",
+      "optionA": "Competitive inhibition",
+      "optionB": "Non-competitive reversible inhibition",
+      "optionC": "Irreversible inhibition",
+      "optionD": "Allosteric activation",
+      "correctAnswer": "C",
+      "explanation": "Correct answer: C. Aspirin acetylates COX irreversibly. Irreversible inhibitors reduce effective enzyme concentration and cannot be overcome by increasing substrate concentration.",
+      "difficulty": "MEDIUM",
+      "source": "Clinical integration",
+      "previousYear": false,
+      "conceptTag": "Irreversible inhibition aspirin",
+      "tags": "Biochemistry,Enzymes"
+    },
+    {
+      "questionText": "Lactate dehydrogenase and creatine kinase are clinically important examples of:",
+      "optionA": "Zymogens",
+      "optionB": "Isoenzymes",
+      "optionC": "Ribozymes",
+      "optionD": "Apoenzymes",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. LDH and CK have tissue-specific isoenzyme patterns useful in clinical diagnosis. Zymogens are inactive precursors like trypsinogen.",
+      "difficulty": "EASY",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Clinical isoenzymes",
+      "tags": "Biochemistry,Enzymes"
+    },
+    {
+      "questionText": "An enzyme with low Km for its substrate generally indicates:",
+      "optionA": "Low substrate affinity",
+      "optionB": "High substrate affinity",
+      "optionC": "Low turnover number by definition",
+      "optionD": "Uncompetitive behavior",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Km is inversely related to apparent substrate affinity in classical Michaelis-Menten systems. Lower Km means half-maximal velocity is reached at lower substrate concentration.",
+      "difficulty": "MEDIUM",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "Km affinity interpretation",
+      "tags": "Biochemistry,Enzymes"
     }
   ]
 }

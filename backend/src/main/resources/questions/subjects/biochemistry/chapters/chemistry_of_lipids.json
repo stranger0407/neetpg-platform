@@ -322,6 +322,48 @@
       "previousYear": true,
       "conceptTag": "MLD arylsulfatase A",
       "tags": "Biochemistry,Chemistry of Lipids"
+    },
+    {
+      "questionText": "Arachidonic acid is biochemically most important as a precursor of:",
+      "optionA": "Bile salts",
+      "optionB": "Eicosanoids (prostaglandins, thromboxanes, leukotrienes)",
+      "optionC": "Steroid hormones",
+      "optionD": "Ketone bodies",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. Arachidonic acid (20:4, omega-6) is released from membrane phospholipids and converted to eicosanoids by COX and LOX pathways.",
+      "difficulty": "MEDIUM",
+      "source": "Harper",
+      "previousYear": false,
+      "conceptTag": "Arachidonic acid derivatives",
+      "tags": "Biochemistry,Chemistry of Lipids"
+    },
+    {
+      "questionText": "Which lipoprotein is richest in triglycerides in fasting plasma?",
+      "optionA": "LDL",
+      "optionB": "VLDL",
+      "optionC": "HDL",
+      "optionD": "Lipoprotein(a)",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. In fasting state, VLDL is the major triglyceride-rich lipoprotein. Chylomicrons dominate post-prandially.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "VLDL fasting TG",
+      "tags": "Biochemistry,Chemistry of Lipids"
+    },
+    {
+      "questionText": "LCAT in plasma is mainly associated with:",
+      "optionA": "Chylomicrons",
+      "optionB": "HDL-mediated reverse cholesterol transport",
+      "optionC": "VLDL assembly in liver",
+      "optionD": "Micelle formation in intestine",
+      "correctAnswer": "B",
+      "explanation": "Correct answer: B. LCAT esterifies free cholesterol on HDL, helping maturation of HDL particles and reverse cholesterol transport.",
+      "difficulty": "HARD",
+      "source": "Lippincott",
+      "previousYear": false,
+      "conceptTag": "LCAT HDL",
+      "tags": "Biochemistry,Chemistry of Lipids"
     }
   ]
 }
