@@ -19,12 +19,16 @@ export default function DailyChallenge() {
   const [submitting, setSubmitting] = useState(false);
   const timerRef = useRef(null);
 
-  // Fetch today's challenge on mount
-  useEffect(() => {
-    fetchChallenge();
+  const fetchLeaderboard = useCallback(async () => {
+    try {
+      const res = await api.get('/daily-challenge/leaderboard');
+      setLeaderboard(res.data);
+    } catch {
+      // Silent fail
+    }
   }, []);
 
-  const fetchChallenge = async () => {
+  const fetchChallenge = useCallback(async () => {
     try {
       const res = await api.get('/daily-challenge/today');
       const data = res.data;
@@ -48,16 +52,13 @@ export default function DailyChallenge() {
       setError(err.response?.data?.message || 'Failed to load daily challenge');
       setPhase('pre');
     }
-  };
+  }, [fetchLeaderboard]);
 
-  const fetchLeaderboard = async () => {
-    try {
-      const res = await api.get('/daily-challenge/leaderboard');
-      setLeaderboard(res.data);
-    } catch {
-      // Silent fail
-    }
-  };
+  // Fetch today's challenge on mount
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchChallenge();
+  }, [fetchChallenge]);
 
   const startChallenge = async () => {
     try {
@@ -70,26 +71,6 @@ export default function DailyChallenge() {
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to start challenge');
     }
-  };
-
-  // Timer countdown
-  useEffect(() => {
-    if (phase !== 'quiz') return;
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timerRef.current);
-  }, [phase]);
-
-  const handleSelectAnswer = (questionId, answer) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answer }));
   };
 
   const handleSubmit = useCallback(async () => {
@@ -115,7 +96,27 @@ export default function DailyChallenge() {
       setError(err.response?.data?.message || 'Failed to submit');
       setSubmitting(false);
     }
-  }, [submitting, questions, answers, sessionId]);
+  }, [submitting, questions, answers, sessionId, fetchLeaderboard]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (phase !== 'quiz') return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          handleSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [phase, handleSubmit]);
+
+  const handleSelectAnswer = (questionId, answer) => {
+    setAnswers(prev => ({ ...prev, [questionId]: answer }));
+  };
 
   const formatTime = (s) => {
     const m = Math.floor(s / 60);
@@ -146,7 +147,7 @@ export default function DailyChallenge() {
         <div className="max-w-2xl mx-auto px-4 py-12">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl mb-4 shadow-lg">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-orange-400 to-red-500 rounded-2xl mb-4 shadow-lg">
               <span className="text-3xl">🔥</span>
             </div>
             <h1 className="text-3xl font-bold text-gray-900">Daily Challenge</h1>
@@ -183,7 +184,7 @@ export default function DailyChallenge() {
           {/* Start Button */}
           <button
             onClick={startChallenge}
-            className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold text-lg rounded-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl active:scale-[0.98] cursor-pointer"
+            className="w-full py-4 bg-linear-to-r from-orange-500 to-red-500 text-white font-semibold text-lg rounded-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl active:scale-[0.98] cursor-pointer"
           >
             🚀 Start Today's Challenge
           </button>
@@ -224,7 +225,7 @@ export default function DailyChallenge() {
             </div>
             <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                className="h-full bg-linear-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -323,7 +324,7 @@ export default function DailyChallenge() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 cursor-pointer transition-all"
+                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-linear-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 cursor-pointer transition-all"
               >
                 {submitting ? 'Submitting...' : `Submit (${answeredCount}/${questions.length})`}
               </button>
@@ -352,7 +353,7 @@ export default function DailyChallenge() {
         <div className="max-w-3xl mx-auto px-4 py-8">
           {/* Result Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 shadow-lg bg-gradient-to-br from-orange-400 to-red-500">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 shadow-lg bg-linear-to-br from-orange-400 to-red-500">
               <span className="text-4xl">{isGreat ? '🏆' : isGood ? '👏' : '💪'}</span>
             </div>
             <h1 className="text-3xl font-bold text-gray-900">
@@ -370,9 +371,9 @@ export default function DailyChallenge() {
                 <div className="w-full max-w-xs mx-auto h-3 bg-gray-100 rounded-full mt-4 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-1000 ${
-                      isGreat ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
-                      isGood ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                      'bg-gradient-to-r from-red-400 to-red-500'
+                      isGreat ? 'bg-linear-to-r from-green-400 to-emerald-500' :
+                      isGood ? 'bg-linear-to-r from-yellow-400 to-orange-500' :
+                      'bg-linear-to-r from-red-400 to-red-500'
                     }`}
                     style={{ width: `${Math.max(0, scorePercent)}%` }}
                   />
@@ -399,7 +400,7 @@ export default function DailyChallenge() {
               </div>
 
               {/* Rank */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl text-center border border-amber-100">
+              <div className="mt-6 p-4 bg-linear-to-r from-amber-50 to-yellow-50 rounded-xl text-center border border-amber-100">
                 <p className="text-sm text-amber-700 font-medium">Your Rank</p>
                 <p className="text-3xl font-bold text-amber-800 mt-1">
                   #{r.rank} <span className="text-sm font-normal text-amber-600">of {r.totalParticipants} participants</span>
