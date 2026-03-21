@@ -144,11 +144,12 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Skin Tumors"
         ));
         SUBJECT_CHAPTERS.put("Psychiatry", List.of(
-            "Classification of Mental Disorders", "Schizophrenia", "Mood Disorders",
-            "Anxiety Disorders", "Substance Use Disorders",
-            "Personality Disorders", "Child Psychiatry",
-            "Psychopharmacology", "Psychotherapy",
-            "Forensic Psychiatry and Ethics"
+            "Classification of Mental Disorders", "Mood Disorders",
+            "Anxiety and Stress-Related Disorders", "Substance Use Disorders",
+            "Personality Disorders", "Child and Adolescent Psychiatry",
+            "Psychopharmacology", "Psychotherapy and Behavioral Sciences",
+            "Schizophrenia and Psychotic Disorders", "Psychosomatic Disorders",
+            "Sleep Disorders", "Psychiatric Ethics and Laws"
         ));
         SUBJECT_CHAPTERS.put("Radiology", List.of(
             "Basic Radiology Physics", "X-Ray Imaging", "CT Scan",

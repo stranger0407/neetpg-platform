@@ -168,6 +168,48 @@
       "previousYear": false,
       "conceptTag": "Stewardship",
       "tags": "Medicine,Infectious Diseases"
+    },
+    {
+      "questionText": "Dengue warning signs that predict progression to severe dengue include:",
+      "optionA": "Mild headache only",
+      "optionB": "Abdominal pain, persistent vomiting, mucosal bleeding, rising hematocrit with falling platelets, and hepatomegaly >2 cm",
+      "optionC": "Normal platelet count",
+      "optionD": "Isolated rash without fever",
+      "correctAnswer": "B",
+      "explanation": "Dengue warning signs (WHO 2009): abdominal pain/tenderness, persistent vomiting, clinical fluid accumulation (ascites, pleural effusion), mucosal bleeding, lethargy/restlessness, hepatomegaly >2 cm, rising HCT with concurrent rapid decrease in platelet count. Presence of warning signs: indicates dengue with warning signs → requires hospitalization and close monitoring. Severe dengue: severe plasma leakage (shock/DSS), severe hemorrhage, organ impairment. Management: primarily IV fluid resuscitation. NO aspirin/NSAIDs. Reference: Harrison — Dengue.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG 2020",
+      "previousYear": true,
+      "conceptTag": "Dengue Warning Signs",
+      "tags": "Medicine,Infectious Diseases,PYQ"
+    },
+    {
+      "questionText": "Scrub typhus is caused by Orientia tsutsugamushi and is characterized by:",
+      "optionA": "Blood-borne transmission",
+      "optionB": "Eschar at the site of chigger mite bite, fever, and lymphadenopathy",
+      "optionC": "Only rash",
+      "optionD": "Fecal-oral transmission",
+      "correctAnswer": "B",
+      "explanation": "Scrub typhus: caused by O. tsutsugamushi, transmitted by Leptotrombidium (chigger/trombiculid) mite larva bite. Eschar: painless, black necrotic crust at bite site (pathognomonic — present in 40-90%, may be hidden in axilla/groin). Fever, headache, regional lymphadenopathy, maculopapular rash. Complications: pneumonitis, meningoencephalitis, myocarditis, hepatitis. Diagnosis: Weil-Felix test (OX-K positive), IgM ELISA, PCR. Treatment: doxycycline (drug of choice), azithromycin (pregnancy/children). Reference: Harrison — Scrub Typhus.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Scrub Typhus Eschar",
+      "tags": "Medicine,Infectious Diseases"
+    },
+    {
+      "questionText": "Immune reconstitution inflammatory syndrome (IRIS) in HIV occurs when:",
+      "optionA": "ART fails",
+      "optionB": "Recovering immune system mounts exaggerated inflammatory response to pre-existing opportunistic infections after starting ART (typically within first 4-8 weeks)",
+      "optionC": "CD4 count drops further",
+      "optionD": "Patient develops drug resistance",
+      "correctAnswer": "B",
+      "explanation": "IRIS: paradoxical worsening or unmasking of opportunistic infections after initiating ART — due to immune recovery and inflammatory response to previously unrecognized/treated infections. Timing: usually 4-8 weeks after ART initiation. Common associations: TB-IRIS (most common — worsening lymphadenopathy, new pulmonary infiltrates), cryptococcal-IRIS, CMV-IRIS, PML-IRIS, Kaposi sarcoma-IRIS. Risk factors: low baseline CD4, high viral load, OI close to ART initiation. Management: continue ART + treat OI + steroids in severe cases. Reference: Harrison — IRIS.",
+      "difficulty": "HARD",
+      "source": "NEET PG 2019",
+      "previousYear": true,
+      "conceptTag": "IRIS HIV ART",
+      "tags": "Medicine,Infectious Diseases,PYQ"
     }
   ]
 }

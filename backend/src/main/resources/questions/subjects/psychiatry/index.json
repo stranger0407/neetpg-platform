@@ -14,8 +14,8 @@
       "file": "mood_disorders.json"
     },
     {
-      "name": "Anxiety Disorders",
-      "file": "anxiety_disorders.json"
+      "name": "Anxiety and Stress-Related Disorders",
+      "file": "anxiety_and_stress_related_disorders.json"
     },
     {
       "name": "Substance Use Disorders",
@@ -26,20 +26,32 @@
       "file": "personality_disorders.json"
     },
     {
-      "name": "Child Psychiatry",
-      "file": "child_psychiatry.json"
+      "name": "Child and Adolescent Psychiatry",
+      "file": "child_and_adolescent_psychiatry.json"
     },
     {
       "name": "Psychopharmacology",
       "file": "psychopharmacology.json"
     },
     {
-      "name": "Psychotherapy",
-      "file": "psychotherapy.json"
+      "name": "Psychotherapy and Behavioral Sciences",
+      "file": "psychotherapy_and_behavioral_sciences.json"
     },
     {
-      "name": "Forensic Psychiatry and Ethics",
-      "file": "forensic_psychiatry_and_ethics.json"
+      "name": "Schizophrenia and Psychotic Disorders",
+      "file": "schizophrenia_and_psychotic_disorders.json"
+    },
+    {
+      "name": "Psychosomatic Disorders",
+      "file": "psychosomatic_disorders.json"
+    },
+    {
+      "name": "Sleep Disorders",
+      "file": "sleep_disorders.json"
+    },
+    {
+      "name": "Psychiatric Ethics and Laws",
+      "file": "psychiatric_ethics_and_laws.json"
     }
   ]
 }

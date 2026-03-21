@@ -168,6 +168,76 @@
       "previousYear": true,
       "conceptTag": "Thrombotic Microangiopathy",
       "tags": "Medicine,Hematology,PYQ,Critical Care"
+    },
+    {
+      "questionText": "Sickle cell disease is caused by a point mutation in the β-globin gene resulting in substitution of:",
+      "optionA": "Lysine for glutamic acid at position 6",
+      "optionB": "Valine for glutamic acid at position 6 (HbS — GAG→GTG)",
+      "optionC": "Alanine for valine at position 6",
+      "optionD": "Glycine for glutamic acid at position 26",
+      "correctAnswer": "B",
+      "explanation": "Sickle cell disease: AR, point mutation in β-globin gene → valine replaces glutamic acid at position 6 (GAG→GTG). HbS polymerizes under deoxygenation → sickle-shaped RBCs. Complications: vaso-occlusive crises (bone pain), acute chest syndrome, splenic sequestration/autosplenism, stroke, avascular necrosis of femoral head, aplastic crisis (parvovirus B19). Target cells and sickle cells on smear. HbF protective (hydroxyurea increases HbF). Newborn screening: Hb electrophoresis. Reference: Harrison — Sickle Cell Disease.",
+      "difficulty": "EASY",
+      "source": "NEET PG 2019",
+      "previousYear": true,
+      "conceptTag": "Sickle Cell HbS",
+      "tags": "Medicine,Hematology,PYQ"
+    },
+    {
+      "questionText": "Multiple myeloma is characterized by:",
+      "optionA": "Lymph node enlargement",
+      "optionB": "Monoclonal plasma cell proliferation in bone marrow with CRAB criteria (Calcium elevated, Renal failure, Anemia, Bone lesions)",
+      "optionC": "Auer rods",
+      "optionD": "Philadelphia chromosome",
+      "correctAnswer": "B",
+      "explanation": "Multiple myeloma: malignant clonal plasma cell neoplasm. CRAB criteria: Calcium elevation (>11 mg/dL), Renal insufficiency (creatinine >2), Anemia (Hb <10), Bone lesions (lytic — punched-out, NO blastic). M-spike on SPEP (monoclonal IgG most common). Bence Jones proteinuria (free light chains). Rouleaux formation on smear. Bone marrow: >10% clonal plasma cells. Complications: pathological fractures, amyloidosis (AL), hyperviscosity. Treatment: bortezomib-based regimens, stem cell transplant (eligible). Reference: Harrison — Multiple Myeloma.",
+      "difficulty": "MEDIUM",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Multiple Myeloma CRAB",
+      "tags": "Medicine,Hematology"
+    },
+    {
+      "questionText": "Hemolytic uremic syndrome (HUS) is most commonly triggered by:",
+      "optionA": "S. aureus",
+      "optionB": "Shiga toxin-producing E. coli O157:H7 (STEC-HUS — bloody diarrhea followed by triad of MAHA, thrombocytopenia, AKI)",
+      "optionC": "Streptococcus pneumoniae always",
+      "optionD": "Viral hepatitis",
+      "correctAnswer": "B",
+      "explanation": "Typical HUS (STEC-HUS): most common in children. Triggered by Shiga toxin-producing E. coli O157:H7 (bloody diarrhea → 5-7 days later → HUS triad). Triad: (1) MAHA (schistocytes, fragmented RBCs), (2) Thrombocytopenia, (3) AKI. Do NOT give antibiotics (may worsen by increasing toxin release). Atypical HUS: complement-mediated (factor H/I mutations) — treat with eculizumab (anti-C5 mAb). TTP: similar but neurologic predominance, ADAMTS13 deficiency. Reference: Harrison — HUS.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG 2020",
+      "previousYear": true,
+      "conceptTag": "HUS E.coli O157 MAHA",
+      "tags": "Medicine,Hematology,PYQ"
+    },
+    {
+      "questionText": "Hemophilia A is caused by deficiency of:",
+      "optionA": "Factor IX",
+      "optionB": "Factor VIII (X-linked recessive — elevated aPTT with normal PT and bleeding time)",
+      "optionC": "Factor VII",
+      "optionD": "Von Willebrand factor",
+      "correctAnswer": "B",
+      "explanation": "Hemophilia A: X-linked recessive, Factor VIII deficiency (most common severe bleeding disorder). Labs: prolonged aPTT (intrinsic pathway), normal PT, normal bleeding time/platelet count. Presentation: deep tissue bleeding (hemarthroses — knee most common, muscle hematomas, intracranial hemorrhage). NOT mucocutaneous (that's platelet disorders). Hemophilia B: Factor IX deficiency (Christmas disease). Treatment: Factor VIII replacement, desmopressin (mild cases — releases vWF/FVIII stores). Emicizumab: bispecific antibody for prophylaxis. Reference: Harrison — Hemophilia.",
+      "difficulty": "EASY",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Hemophilia A Factor VIII",
+      "tags": "Medicine,Hematology"
+    },
+    {
+      "questionText": "Polycythemia vera (PV) is a myeloproliferative neoplasm characterized by:",
+      "optionA": "BCR-ABL positivity",
+      "optionB": "JAK2 V617F mutation (>95%), elevated RBC mass, low EPO, and risk of thrombosis and transformation to myelofibrosis/AML",
+      "optionC": "CALR mutation only",
+      "optionD": "Low hemoglobin",
+      "correctAnswer": "B",
+      "explanation": "PV: clonal stem cell disorder → primarily erythrocytosis. JAK2 V617F: present in >95% (diagnostic). Features: elevated Hb/Hct/RBC mass, LOW serum EPO (differentiates from secondary polycythemia — EPO high), splenomegaly, pruritus (especially after warm bathing — aquagenic, mast cell histamine), thrombosis (most common cause of morbidity), erythromelalgia. Treatment: phlebotomy (target Hct <45%), low-dose aspirin, hydroxyurea (high-risk). Risk of transformation to myelofibrosis or AML. Reference: Harrison — PV.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG 2019",
+      "previousYear": true,
+      "conceptTag": "PV JAK2 V617F myeloproliferative",
+      "tags": "Medicine,Hematology,PYQ"
     }
   ]
 }
