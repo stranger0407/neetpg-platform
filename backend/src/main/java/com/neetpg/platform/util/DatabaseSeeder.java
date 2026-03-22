@@ -59,7 +59,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Chemistry of Carbohydrates", "Chemistry of Lipids", "Chemistry of Proteins",
             "Enzymes", "Carbohydrate Metabolism", "Lipid Metabolism",
             "Amino Acid Metabolism", "Nucleotide Metabolism", "Molecular Biology",
-            "Vitamins and Minerals"
+            "Vitamins and Minerals", "Integration and Clinical Correlations"
         ));
         SUBJECT_CHAPTERS.put("Pathology", List.of(
             "Cell Injury and Adaptation", "Inflammation", "Hemodynamic Disorders",
@@ -69,8 +69,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         ));
         SUBJECT_CHAPTERS.put("Pharmacology", List.of(
             "General Pharmacology", "Autonomic Nervous System",
-            "Cardiovascular Pharmacology", "CNS Pharmacology",
-            "Chemotherapy Antimicrobials", "Autacoids",
+            "Cardiovascular Pharmacology", "Chemotherapy (Antimicrobials & Oncology)",
+            "CNS Pharmacology", "Chemotherapy Antimicrobials", "Autacoids",
             "Endocrine Pharmacology", "GI Pharmacology",
             "Respiratory Pharmacology", "Chemotherapy Anticancer"
         ));
@@ -100,10 +100,10 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Diseases of Larynx"
         ));
         SUBJECT_CHAPTERS.put("Ophthalmology", List.of(
-            "Anatomy of Eye", "Diseases of Conjunctiva", "Diseases of Cornea",
-            "Diseases of Lens", "Glaucoma", "Diseases of Retina",
-            "Diseases of Uveal Tract", "Strabismus", "Optics and Refraction",
-            "Neuro-ophthalmology"
+            "Ophthalmology General", "Anatomy of Eye", "Diseases of Conjunctiva",
+            "Diseases of Cornea", "Diseases of Lens", "Glaucoma",
+            "Diseases of Retina", "Diseases of Uveal Tract", "Strabismus",
+            "Optics and Refraction", "Neuro-ophthalmology"
         ));
         SUBJECT_CHAPTERS.put("Medicine", List.of(
             "Cardiology", "Pulmonology", "Gastroenterology",
@@ -112,23 +112,23 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Dermatology in Medicine", "Critical Care", "Poisoning"
         ));
         SUBJECT_CHAPTERS.put("Surgery", List.of(
-            "General Surgery Principles", "Wound Healing", "Surgical Infections",
+            "General Surgery Principles", "Trauma and Emergency Surgery",
+            "Orthopedics", "Wound Healing", "Surgical Infections",
             "Breast Surgery", "Thyroid Surgery", "GI Surgery",
-            "Hepatobiliary Surgery", "Vascular Surgery", "Urology",
-            "Trauma and Emergency Surgery"
+            "Hepatobiliary Surgery", "Vascular Surgery", "Urology"
         ));
         SUBJECT_CHAPTERS.put("Obstetrics and Gynecology", List.of(
-            "Normal Pregnancy", "Abnormal Pregnancy", "Labor and Delivery",
-            "Puerperium", "High Risk Pregnancy", "Contraception",
-            "Abnormal Uterine Bleeding", "Pelvic Infections",
+            "Obstetrics", "Gynecology", "Normal Pregnancy", "Abnormal Pregnancy",
+            "Labor and Delivery", "Puerperium", "High Risk Pregnancy",
+            "Contraception", "Abnormal Uterine Bleeding", "Pelvic Infections",
             "Benign Gynecological Tumors", "Malignant Gynecological Tumors"
         ));
         SUBJECT_CHAPTERS.put("Pediatrics", List.of(
-            "Neonatology", "Growth and Development", "Nutrition in Pediatrics",
-            "Infectious Diseases in Children", "Cardiovascular Disorders",
-            "Respiratory Disorders in Children", "GI Disorders in Children",
-            "CNS Disorders in Children", "Pediatric Nephrology",
-            "Hematological Disorders in Children"
+            "Pediatrics General", "Neonatology", "Growth and Development",
+            "Nutrition in Pediatrics", "Infectious Diseases in Children",
+            "Cardiovascular Disorders", "Respiratory Disorders in Children",
+            "GI Disorders in Children", "CNS Disorders in Children",
+            "Pediatric Nephrology", "Hematological Disorders in Children"
         ));
         SUBJECT_CHAPTERS.put("Orthopedics", List.of(
             "General Orthopedics", "Fractures Upper Limb", "Fractures Lower Limb",
@@ -137,17 +137,18 @@ public class DatabaseSeeder implements CommandLineRunner {
             "Congenital Orthopedic Disorders", "Sports Medicine"
         ));
         SUBJECT_CHAPTERS.put("Dermatology", List.of(
-            "Basic Dermatology", "Bacterial Skin Infections", "Viral Skin Infections",
-            "Fungal Skin Infections", "Parasitic Skin Infections",
-            "Papulosquamous Disorders", "Vesicobullous Disorders",
-            "Connective Tissue Disorders", "Pigmentary Disorders",
-            "Skin Tumors"
+            "Dermatology General", "Basic Dermatology", "Bacterial Skin Infections",
+            "Viral Skin Infections", "Fungal Skin Infections",
+            "Parasitic Skin Infections", "Papulosquamous Disorders",
+            "Vesicobullous Disorders", "Connective Tissue Disorders",
+            "Pigmentary Disorders", "Skin Tumors"
         ));
         SUBJECT_CHAPTERS.put("Psychiatry", List.of(
-            "Classification of Mental Disorders", "Mood Disorders",
-            "Anxiety and Stress-Related Disorders", "Substance Use Disorders",
-            "Personality Disorders", "Child and Adolescent Psychiatry",
-            "Psychopharmacology", "Psychotherapy and Behavioral Sciences",
+            "Classification of Mental Disorders", "Schizophrenia",
+            "Mood Disorders", "Anxiety and Stress-Related Disorders",
+            "Substance Use Disorders", "Personality Disorders",
+            "Child and Adolescent Psychiatry", "Psychopharmacology",
+            "Psychotherapy and Behavioral Sciences",
             "Schizophrenia and Psychotic Disorders", "Psychosomatic Disorders",
             "Sleep Disorders", "Psychiatric Ethics and Laws"
         ));
@@ -222,6 +223,166 @@ public class DatabaseSeeder implements CommandLineRunner {
         ensureDefaultUsers();
 
         seedSubjectsChaptersAndQuestions(false);
+    }
+
+    /**
+     * Force re-seed: replaces old dummy/fallback questions with real JSON data.
+     * Detects chapters that have procedurally generated questions (dummy text) and
+     * replaces them with curated questions from JSON resource files.
+     * Returns a summary map of what was reseeded.
+     */
+    @Transactional
+    public Map<String, Object> reseedFromResources() {
+        log.info("Starting force re-seed from JSON resources...");
+        ensureDefaultUsers();
+
+        ObjectMapper mapper = new ObjectMapper();
+        int totalReplaced = 0;
+        int totalNewQuestions = 0;
+        List<String> reseededChapters = new ArrayList<>();
+        List<String> skippedChapters = new ArrayList<>();
+        List<String> newChapters = new ArrayList<>();
+
+        for (Map.Entry<String, List<String>> entry : SUBJECT_CHAPTERS.entrySet()) {
+            String subjectName = entry.getKey();
+
+            Subject subject = subjectRepository.findByName(subjectName)
+                .orElseGet(() -> {
+                    Subject created = subjectRepository.save(Subject.builder().name(subjectName).build());
+                    log.info("Created subject: {}", subjectName);
+                    return created;
+                });
+
+            Map<String, Chapter> existingChapters = chapterRepository.findBySubjectId(subject.getId()).stream()
+                .collect(Collectors.toMap(ch -> normalizeKey(ch.getName()), ch -> ch, (a, b) -> a));
+
+            String resourceKey = getResourceKeyForSubject(subjectName);
+            SubjectData subjectData = loadSubjectData(mapper, subjectName, resourceKey);
+            if (subjectData == null || subjectData.getChapters() == null) {
+                continue;
+            }
+
+            // Collect all chapter names to seed (from SUBJECT_CHAPTERS + index.json)
+            LinkedHashSet<String> chapterNamesToSeed = new LinkedHashSet<>(entry.getValue());
+            for (ChapterData chapterData : subjectData.getChapters()) {
+                if (chapterData != null && chapterData.getName() != null && !chapterData.getName().isBlank()) {
+                    chapterNamesToSeed.add(chapterData.getName().trim());
+                }
+            }
+
+            for (String chapterName : chapterNamesToSeed) {
+                String chapterKey = normalizeKey(chapterName);
+                Chapter chapter = existingChapters.get(chapterKey);
+                if (chapter == null) {
+                    chapter = chapterRepository.save(
+                            Chapter.builder().name(chapterName).subject(subject).build());
+                    existingChapters.put(chapterKey, chapter);
+                }
+
+                // Find matching JSON chapter data
+                Optional<ChapterData> chapterDataOpt = subjectData.getChapters().stream()
+                        .filter(ch -> ch.getName() != null)
+                        .filter(ch -> normalizeKey(ch.getName()).equals(chapterKey))
+                        .findFirst();
+
+                if (chapterDataOpt.isEmpty() || chapterDataOpt.get().getQuestions() == null
+                        || chapterDataOpt.get().getQuestions().isEmpty()) {
+                    continue; // No JSON data for this chapter
+                }
+
+                long existingCount = questionRepository.countByChapterId(chapter.getId());
+
+                if (existingCount == 0) {
+                    // No existing questions — seed fresh
+                    List<Question> questions = buildQuestionsFromData(
+                            chapter, subjectName, chapterName, chapterDataOpt.get());
+                    questionRepository.saveAll(questions);
+                    totalNewQuestions += questions.size();
+                    newChapters.add(subjectName + " > " + chapterName + " (" + questions.size() + " new)");
+                    log.info("  Seeded new chapter: {} > {} with {} questions",
+                            subjectName, chapterName, questions.size());
+                    continue;
+                }
+
+                // Check if existing questions are dummy/fallback data
+                List<Question> existingQuestions = questionRepository.findByChapterId(chapter.getId());
+                boolean hasDummyData = existingQuestions.stream().anyMatch(q -> isDummyQuestion(q));
+                int jsonQuestionCount = chapterDataOpt.get().getQuestions().size();
+
+                if (hasDummyData || existingCount < jsonQuestionCount) {
+                    // Replace: delete old, insert new from JSON
+                    questionRepository.deleteAll(existingQuestions);
+                    questionRepository.flush();
+
+                    List<Question> questions = buildQuestionsFromData(
+                            chapter, subjectName, chapterName, chapterDataOpt.get());
+                    questionRepository.saveAll(questions);
+                    totalReplaced += questions.size();
+                    reseededChapters.add(subjectName + " > " + chapterName
+                            + " (" + existingCount + " old -> " + questions.size() + " real)");
+                    log.info("  Re-seeded chapter: {} > {} ({} old -> {} real)",
+                            subjectName, chapterName, existingCount, questions.size());
+                } else {
+                    skippedChapters.add(subjectName + " > " + chapterName
+                            + " (" + existingCount + " already real)");
+                }
+            }
+        }
+
+        log.info("Force re-seed completed! Replaced: {}, New: {}", totalReplaced, totalNewQuestions);
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("totalReplaced", totalReplaced);
+        summary.put("totalNewQuestions", totalNewQuestions);
+        summary.put("reseededChapters", reseededChapters);
+        summary.put("newChapters", newChapters);
+        summary.put("skippedChapters", skippedChapters);
+        return summary;
+    }
+
+    /**
+     * Detect if a question is a dummy/fallback question generated by the old procedural code.
+     */
+    private boolean isDummyQuestion(Question q) {
+        if (q.getQuestionText() == null) return false;
+        String text = q.getQuestionText();
+        // Procedurally generated questions match patterns like:
+        // "... (Q1)", "... (Q23)" at the end
+        // or contain "Option A-1", "Option B-2" style options
+        if (text.matches(".*\\(Q\\d+\\)\\s*$")) return true;
+        // Check for generic placeholder patterns in options
+        if (q.getOptionA() != null && q.getOptionA().matches(".*\\(Option [A-D]-\\d+\\)\\s*$")) return true;
+        // Check for generic explanation pattern
+        if (q.getExplanation() != null && q.getExplanation().contains("Reference: Standard textbook of") 
+                && q.getExplanation().matches(".*\\(Q\\d+\\)\\s*$")) return true;
+        // Check for starter pool questions
+        if (text.startsWith("Starter question ")) return true;
+        return false;
+    }
+
+    /**
+     * Build Question entities from ChapterData JSON.
+     */
+    private List<Question> buildQuestionsFromData(
+            Chapter chapter, String subjectName, String chapterName, ChapterData chapterData) {
+        List<Question> questions = new ArrayList<>();
+        for (QuestionData qd : chapterData.getQuestions()) {
+            questions.add(Question.builder()
+                    .chapter(chapter)
+                    .questionText(qd.getQuestionText())
+                    .optionA(qd.getOptionA())
+                    .optionB(qd.getOptionB())
+                    .optionC(qd.getOptionC())
+                    .optionD(qd.getOptionD())
+                    .correctAnswer(qd.getCorrectAnswer())
+                    .explanation(qd.getExplanation())
+                    .difficulty(Question.Difficulty.valueOf(qd.getDifficulty().toUpperCase()))
+                    .source(qd.getSource())
+                    .tags(qd.getTags() != null ? qd.getTags() : subjectName + "," + chapterName)
+                    .previousYear(qd.isPreviousYear())
+                    .build());
+        }
+        return questions;
     }
 
     private void ensureDefaultUsers() {
