@@ -742,6 +742,20 @@
       "previousYear": false,
       "conceptTag": "Zymogen proenzyme activation purpose",
       "tags": "Biochemistry,Enzymes"
+    },
+    {
+      "questionText": "Which of the following kinetic parameters is directly altered when a pure non-competitive inhibitor is added to an enzyme-catalyzed reaction?",
+      "optionA": "Increased Km",
+      "optionB": "Decreased Vmax",
+      "optionC": "Decreased Km",
+      "optionD": "Increased Vmax",
+      "correctAnswer": "B",
+      "explanation": "A pure non-competitive inhibitor binds to an allosteric site on both the free enzyme and the enzyme-substrate complex with equal affinity. This binding prevents the formation of product, effectively lowering the concentration of functional enzyme, which leads to a decreased Vmax. The Km remains unchanged because the inhibitor does not interfere with substrate binding to the active enzyme.",
+      "difficulty": "MEDIUM",
+      "source": "NEET PG Pattern",
+      "previousYear": false,
+      "conceptTag": "Non-competitive kinetics",
+      "tags": "Biochemistry,Enzymes"
     }
   ]
 }

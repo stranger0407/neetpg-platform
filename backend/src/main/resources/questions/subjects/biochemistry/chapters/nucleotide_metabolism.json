@@ -546,6 +546,20 @@
       "previousYear": false,
       "conceptTag": "Purine vs pyrimidine de novo synthesis comparison",
       "tags": "Biochemistry,Nucleotide Metabolism"
+    },
+    {
+      "questionText": "Lesch-Nyhan syndrome is characterized by hyperuricemia, self-mutilation, and neurological deficits. The primary biochemical defect is:",
+      "optionA": "Absence of HGPRT leading to blocked purine salvage and secondary overactivation of PRPP amidotransferase",
+      "optionB": "Superactivity of PRPP synthetase leading to excess de novo purine synthesis",
+      "optionC": "Deficiency of adenosine deaminase leading to dATP accumulation",
+      "optionD": "Complete deficiency of xanthine oxidase",
+      "correctAnswer": "A",
+      "explanation": "Lesch-Nyhan syndrome: X-linked recessive deficiency of Hypoxanthine-Guanine Phosphoribosyltransferase (HGPRT). Normal function of HGPRT is to salvage hypoxanthine and guanine back into IMP and GMP, respectively, using PRPP. Deficiency leads to: (1) Blocked salvage, meaning hypoxanthine and guanine are degraded to uric acid → hyperuricemia and gout. (2) Accumulation of PRPP and lack of feedback inhibition by IMP/GMP → massively upregulates de novo purine synthesis (via PRPP amidotransferase) → even more purines produced and degraded to uric acid. Clinical features (usually males): severe gouty arthritis, kidney stones, choreoathetosis, spasticity, and characteristic compulsive self-mutilation (lip and finger biting).",
+      "difficulty": "HARD",
+      "source": "Standard Textbook",
+      "previousYear": false,
+      "conceptTag": "Lesch-Nyhan syndrome HGPRT deficiency",
+      "tags": "Biochemistry,Nucleotide Metabolism"
     }
   ]
 }

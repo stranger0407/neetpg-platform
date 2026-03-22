@@ -826,6 +826,20 @@
       "previousYear": false,
       "conceptTag": "Protein denaturation urea guanidine",
       "tags": "Biochemistry,Chemistry of Proteins"
+    },
+    {
+      "questionText": "A mutational defect affecting the synthesis of desmosine and isodesmosine cross-links would most likely result in impaired function of which of the following tissues?",
+      "optionA": "Articular cartilage",
+      "optionB": "Aortic wall",
+      "optionC": "Basement membrane",
+      "optionD": "Cornea",
+      "correctAnswer": "B",
+      "explanation": "Desmosine and isodesmosine are specialized cross-linking amino acids unique to elastin. They are formed from condensation of multiple allysine residues (produced by lysyl oxidase). Elastin is a major component of the aorta and large arteries (allowing for stretch and recoil). Disruption leads to aortic pathology.",
+      "difficulty": "HARD",
+      "source": "NEET PG Pattern",
+      "previousYear": false,
+      "conceptTag": "Desmosine Elastin",
+      "tags": "Biochemistry,Chemistry of Proteins"
     }
   ]
 }

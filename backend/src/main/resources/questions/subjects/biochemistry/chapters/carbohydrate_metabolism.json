@@ -924,6 +924,20 @@
       "previousYear": false,
       "conceptTag": "Uncouplers DNP UCP1 thermogenesis",
       "tags": "Biochemistry,Carbohydrate Metabolism"
+    },
+    {
+      "questionText": "An infant develops jaundice, hepatomegaly, and bleeding diathesis shortly after the introduction of fruit juices. Which of the following pathways is likely to be primarily affected during a normal physiological state in this patient?",
+      "optionA": "Conversion of Galactose to Galactose-1-phosphate",
+      "optionB": "Cleavage of Fructose-1-phosphate to DHAP and Glyceraldehyde",
+      "optionC": "Conversion of Fructose-6-phosphate to Fructose-1,6-bisphosphate",
+      "optionD": "Isomerization of Glucose-6-phosphate to Fructose-6-phosphate",
+      "correctAnswer": "B",
+      "explanation": "The child has Hereditary Fructose Intolerance (HFI), caused by a deficiency in Aldolase B. Adding fruit juices (sucrose/fructose) leads to accumulation of Fructose-1-phosphate, trapping intracellular inorganic phosphate. This impairs both glycogenolysis and gluconeogenesis (leading to severe hypoglycemia) and causes ATP depletion, resulting in hepatomegaly, jaundice, and bleeding. Aldolase B normally cleaves Fructose-1-phosphate into Dihydroxyacetone phosphate (DHAP) and Glyceraldehyde.",
+      "difficulty": "HARD",
+      "source": "NEET PG Integration",
+      "previousYear": false,
+      "conceptTag": "Hereditary Fructose Intolerance",
+      "tags": "Biochemistry,Carbohydrate Metabolism"
     }
   ]
 }

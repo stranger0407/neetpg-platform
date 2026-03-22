@@ -742,6 +742,20 @@
       "previousYear": false,
       "conceptTag": "SAM methylation exceptions thymidylate",
       "tags": "Biochemistry,Amino Acid Metabolism"
+    },
+    {
+      "questionText": "An infant presents with seizures, intellectual disability, and lens subluxation. Blood tests show significantly elevated levels of methionine and homocysteine. The most likely deficient enzyme is:",
+      "optionA": "Methionine synthase",
+      "optionB": "Cystathionine beta-synthase",
+      "optionC": "Methylenetetrahydrofolate reductase",
+      "optionD": "Homocysteine methyltransferase",
+      "correctAnswer": "B",
+      "explanation": "Classical homocystinuria is due to a deficiency in cystathionine beta-synthase (CBS) and is characterized by marfanoid habitus, ectopia lentis (usually downward, unlike Marfan's upward subluxation), intellectual disability, and a high risk of thromboembolism.",
+      "difficulty": "HARD",
+      "source": "NEET PG Target",
+      "previousYear": false,
+      "conceptTag": "Homocystinuria CBS deficiency",
+      "tags": "Biochemistry,Amino Acid Metabolism"
     }
   ]
 }

@@ -714,6 +714,20 @@
       "previousYear": false,
       "conceptTag": "Fibrates PPARα triglyceride lowering",
       "tags": "Biochemistry,Lipid Metabolism"
+    },
+    {
+      "questionText": "A 10-year-old child presents with angiokeratomas, decreased sweating, and burning pain in his extremities. His grandfather died of cardiovascular complications and renal failure. The accumulated lipid in this patient's tissues is:",
+      "optionA": "Glucocerebroside",
+      "optionB": "Sphingomyelin",
+      "optionC": "Ceramide trihexoside",
+      "optionD": "Galactocerebroside",
+      "correctAnswer": "C",
+      "explanation": "The patient has Fabry disease, an X-linked recessive lysosomal storage disorder caused by a deficiency of alpha-galactosidase A. This leads to the accumulation of ceramide trihexoside (globotriaosylceramide). Clinical features include angiokeratomas, hypohidrosis, acroparesthesias, and late-stage renal and cardiovascular failure.",
+      "difficulty": "HARD",
+      "source": "NEET PG Exam",
+      "previousYear": true,
+      "conceptTag": "Fabry disease lysosomal storage",
+      "tags": "Biochemistry,Lipid Metabolism"
     }
   ]
 }
