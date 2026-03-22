@@ -71,4 +71,23 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE c.subject.id = :subjectId AND q.difficulty = :difficulty",
            countQuery = "SELECT COUNT(q) FROM Question q WHERE q.chapter.subject.id = :subjectId AND q.difficulty = :difficulty")
     Page<Question> findBySubjectAndDifficulty(@Param("subjectId") Long subjectId, @Param("difficulty") Question.Difficulty difficulty, Pageable pageable);
+
+    @Query(value = "SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject s " +
+           "WHERE (:keyword IS NULL OR LOWER(q.questionText) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+           "OR LOWER(COALESCE(q.tags, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "AND (:subjectId IS NULL OR s.id = :subjectId) " +
+           "AND (:chapterId IS NULL OR c.id = :chapterId) " +
+           "AND (:difficulty IS NULL OR q.difficulty = :difficulty)",
+          countQuery = "SELECT COUNT(q) FROM Question q JOIN q.chapter c JOIN c.subject s " +
+                 "WHERE (:keyword IS NULL OR LOWER(q.questionText) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                 "OR LOWER(COALESCE(q.tags, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+                 "AND (:subjectId IS NULL OR s.id = :subjectId) " +
+                 "AND (:chapterId IS NULL OR c.id = :chapterId) " +
+                 "AND (:difficulty IS NULL OR q.difficulty = :difficulty)")
+    Page<Question> searchWithFilters(
+           @Param("keyword") String keyword,
+           @Param("subjectId") Long subjectId,
+           @Param("chapterId") Long chapterId,
+           @Param("difficulty") Question.Difficulty difficulty,
+           Pageable pageable);
 }
