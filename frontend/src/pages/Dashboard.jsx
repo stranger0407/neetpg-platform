@@ -97,7 +97,7 @@ export default function Dashboard() {
     { label: 'Practice', to: '/subjects', color: 'bg-indigo-600 hover:bg-indigo-700', icon: '>' },
     { label: 'Mock Test', to: '/mock-test', color: 'bg-purple-600 hover:bg-purple-700', icon: '>' },
     { label: 'Revision', to: '/bookmarks', color: 'bg-emerald-600 hover:bg-emerald-700', icon: '>' },
-    { label: 'Search', to: '/search', color: 'bg-amber-600 hover:bg-amber-700', icon: '>' },
+    { label: 'Practice', to: '/practice', color: 'bg-amber-600 hover:bg-amber-700', icon: '>' },
   ];
 
   return (
