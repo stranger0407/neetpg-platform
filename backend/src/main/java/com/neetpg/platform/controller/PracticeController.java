@@ -5,6 +5,7 @@ import com.neetpg.platform.repository.BookmarkRepository;
 import com.neetpg.platform.repository.QuestionRepository;
 import com.neetpg.platform.security.UserPrincipal;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +38,19 @@ public class PracticeController {
         Long userId = userPrincipal != null ? userPrincipal.getId() : null;
 
         // Get all questions for this chapter
-        List<Question> questions = questionRepository.findByChapterIdWithChapterAndSubject(chapterId);
+        List<Question> questions;
+        try {
+            questions = questionRepository.findByChapterIdWithChapterAndSubject(chapterId);
+        } catch (DataAccessException ex) {
+            log.error("Failed to load questions for chapterId={}", chapterId, ex);
+            Map<String, Object> response = new HashMap<>();
+            response.put("questions", List.of());
+            response.put("totalQuestions", 0);
+            response.put("chapterName", "");
+            response.put("subjectName", "");
+            response.put("message", "Temporary database issue. Please retry.");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+        }
 
         if (questions.isEmpty()) {
             Map<String, Object> response = new HashMap<>();
