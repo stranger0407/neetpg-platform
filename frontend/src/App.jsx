@@ -13,6 +13,7 @@ import Analytics from './pages/Analytics';
 import Leaderboard from './pages/Leaderboard';
 import MockTest from './pages/MockTest';
 import Bookmarks from './pages/Bookmarks';
+import PracticeMode from './pages/PracticeMode';
 
 import DailyChallenge from './pages/DailyChallenge';
 import Admin from './pages/Admin';
@@ -120,6 +121,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Leaderboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/practice/:chapterId"
+          element={
+            <ProtectedRoute>
+              <PracticeMode />
             </ProtectedRoute>
           }
         />
