@@ -5,6 +5,8 @@ const STATIC_ASSETS = [
   '/manifest.json',
 ];
 
+const APP_SHELL = '/index.html';
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -23,12 +25,17 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  const requestUrl = new URL(request.url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  // Let cross-origin requests pass through untouched.
+  if (!isSameOrigin) return;
+
   // For API requests, try network first, then cache
-  if (request.url.includes('/api/')) {
+  if (requestUrl.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -36,20 +43,35 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch(() => caches.match(request).then((cached) => cached || new Response(null, { status: 503, statusText: 'Offline' })))
     );
     return;
   }
 
-  // For static assets, try cache first, then network
+  // For navigation requests (SPA routes like /subjects, /practice, etc.)
+  // use network first; if offline, serve cached app shell.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .catch(() => caches.match(APP_SHELL))
+        .then((response) => response || new Response('Offline', { status: 503, statusText: 'Offline' }))
+    );
+    return;
+  }
+
+  // For actual static assets (JS, CSS, images), try cache first, then network
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
-      return fetch(request).then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        return response;
-      });
+      return fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => new Response(null, { status: 504, statusText: 'Gateway Timeout' }));
     })
   );
 });
