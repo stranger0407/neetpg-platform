@@ -10,7 +10,7 @@ const navLinks = [
   { to: '/leaderboard', label: 'Leaderboard' },
   { to: '/mock-test', label: 'Mock Test' },
   { to: '/bookmarks', label: 'Bookmarks' },
-  { to: '/search', label: 'Search' },
+  { to: '/practice', label: 'Practice' },
 ];
 
 export default function Navbar() {

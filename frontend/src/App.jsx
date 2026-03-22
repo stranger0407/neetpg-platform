@@ -13,7 +13,7 @@ import Analytics from './pages/Analytics';
 import Leaderboard from './pages/Leaderboard';
 import MockTest from './pages/MockTest';
 import Bookmarks from './pages/Bookmarks';
-import Search from './pages/Search';
+import Practice from './pages/Practice';
 import DailyChallenge from './pages/DailyChallenge';
 import Admin from './pages/Admin';
 
@@ -132,10 +132,10 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/search"
+          path="/practice"
           element={
             <ProtectedRoute>
-              <Search />
+              <Practice />
             </ProtectedRoute>
           }
         />
