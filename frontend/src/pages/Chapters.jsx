@@ -29,13 +29,17 @@ export default function Chapters() {
     fetchChapters();
   }, [subjectId]);
 
-  const startPractice = (chapterId) => {
+  const startTest = (chapterId) => {
     const params = new URLSearchParams({
       chapterId,
       quizType: 'practice',
       questionCount: '20',
     });
     navigate(`/quiz?${params.toString()}`);
+  };
+
+  const startPractice = (chapterId) => {
+    navigate(`/practice/${chapterId}`);
   };
 
   if (loading) {
@@ -79,7 +83,7 @@ export default function Chapters() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {subjectName || 'Chapters'}
           </h1>
-          <p className="mt-1 text-gray-500">Select a chapter to start practicing.</p>
+          <p className="mt-1 text-gray-500">Select a chapter to practice or take a test.</p>
         </div>
 
         {chapters.length === 0 ? (
@@ -104,12 +108,20 @@ export default function Chapters() {
                 <p className="text-sm text-gray-500 mt-1">
                   {chapter.questionCount ?? chapter.questions?.length ?? 0} Questions
                 </p>
-                <button
-                  onClick={() => startPractice(chapter._id || chapter.id)}
-                  className="mt-4 w-full py-2 px-4 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
-                >
-                  Start Practice
-                </button>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => startPractice(chapter._id || chapter.id)}
+                    className="flex-1 py-2 px-3 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors cursor-pointer"
+                  >
+                    Practice
+                  </button>
+                  <button
+                    onClick={() => startTest(chapter._id || chapter.id)}
+                    className="flex-1 py-2 px-3 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
+                  >
+                    Test
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -118,3 +130,4 @@ export default function Chapters() {
     </div>
   );
 }
+

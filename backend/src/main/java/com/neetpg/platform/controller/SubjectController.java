@@ -1,18 +1,20 @@
 package com.neetpg.platform.controller;
 
 import com.neetpg.platform.entity.Chapter;
+import com.neetpg.platform.entity.Question;
 import com.neetpg.platform.entity.Subject;
+import com.neetpg.platform.repository.BookmarkRepository;
 import com.neetpg.platform.repository.ChapterRepository;
 import com.neetpg.platform.repository.QuestionRepository;
 import com.neetpg.platform.repository.SubjectRepository;
+import com.neetpg.platform.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,6 +25,7 @@ public class SubjectController {
     private final SubjectRepository subjectRepository;
     private final ChapterRepository chapterRepository;
     private final QuestionRepository questionRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Value("${spring.datasource.url:unknown}")
     private String dbUrl;
@@ -53,6 +56,47 @@ public class SubjectController {
             map.put("questionCount", questionRepository.countByChapterId(c.getId()));
             return map;
         }).collect(Collectors.toList());
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/practice/chapter/{chapterId}")
+    public ResponseEntity<Map<String, Object>> getPracticeQuestions(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long chapterId) {
+        List<Question> questions = questionRepository.findByChapterIdWithChapterAndSubject(chapterId);
+        if (questions.isEmpty()) {
+            return ResponseEntity.ok(Map.of(
+                "chapterName", "Unknown",
+                "subjectName", "Unknown",
+                "totalQuestions", 0,
+                "questions", List.of()
+            ));
+        }
+
+        Chapter chapter = questions.get(0).getChapter();
+        Set<Long> bookmarkedIds = new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(user.getId()));
+
+        List<Map<String, Object>> questionList = questions.stream().map(q -> {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", q.getId());
+            map.put("questionText", q.getQuestionText());
+            map.put("optionA", q.getOptionA());
+            map.put("optionB", q.getOptionB());
+            map.put("optionC", q.getOptionC());
+            map.put("optionD", q.getOptionD());
+            map.put("correctAnswer", q.getCorrectAnswer());
+            map.put("explanation", q.getExplanation());
+            map.put("difficulty", q.getDifficulty().name());
+            map.put("tags", q.getTags());
+            map.put("bookmarked", bookmarkedIds.contains(q.getId()));
+            return map;
+        }).collect(Collectors.toList());
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("chapterName", chapter.getName());
+        result.put("subjectName", chapter.getSubject().getName());
+        result.put("totalQuestions", questions.size());
+        result.put("questions", questionList);
         return ResponseEntity.ok(result);
     }
 
