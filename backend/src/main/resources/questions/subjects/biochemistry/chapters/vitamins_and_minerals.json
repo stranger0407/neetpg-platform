@@ -770,6 +770,20 @@
       "previousYear": false,
       "conceptTag": "Vitamin E toxicity bleeding warfarin interaction",
       "tags": "Biochemistry,Vitamins and Minerals"
+    },
+    {
+      "questionText": "A child presents with a distinctive periorificial skin rash, alopecia, and altered mental status. Laboratory investigation shows elevated organic acids in urine, including 3-hydroxyisovaleric acid. The most likely defective enzyme cofactor is:",
+      "optionA": "Pyridoxal phosphate",
+      "optionB": "Biotin",
+      "optionC": "Cobalamin",
+      "optionD": "Thiamine pyrophosphate",
+      "correctAnswer": "B",
+      "explanation": "Biotin deficiency or Multiple Carboxylase Deficiency (due to holocarboxylase synthetase or biotinidase defects) presents with a characteristic triad: neurological abnormalities, periorificial dermatitis, and alopecia. Biotin is a required cofactor for four important carboxylases: Propionyl-CoA carboxylase, Acetyl-CoA carboxylase, Pyruvate carboxylase, and 3-Methylcrotonyl-CoA carboxylase. Failure of 3-Methylcrotonyl-CoA carboxylase leads to accumulation of 3-hydroxyisovalerate and 3-methylcrotonylglycine in the urine. Can also be caused by prolonged consumption of raw egg whites (avidin binds biotin).",
+      "difficulty": "HARD",
+      "source": "Clinical Integration",
+      "previousYear": false,
+      "conceptTag": "Biotin deficiency multiple carboxylase",
+      "tags": "Biochemistry,Vitamins and Minerals"
     }
   ]
 }
