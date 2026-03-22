@@ -27,7 +27,7 @@ public class PracticeController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long chapterId) {
 
-        Long userId = userPrincipal.getId();
+        Long userId = userPrincipal != null ? userPrincipal.getId() : null;
 
         // Get all questions for this chapter
         List<Question> questions = questionRepository.findByChapterId(chapterId);
@@ -42,11 +42,20 @@ public class PracticeController {
         }
 
         // Get bookmarked question IDs for this user
-        Set<Long> bookmarkedIds = new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
+        Set<Long> bookmarkedIds = userId == null
+            ? Collections.emptySet()
+            : new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
 
         // Get chapter and subject names from the first question
-        String chapterName = questions.get(0).getChapter().getName();
-        String subjectName = questions.get(0).getChapter().getSubject().getName();
+        String chapterName = questions.get(0).getChapter() != null && questions.get(0).getChapter().getName() != null
+            ? questions.get(0).getChapter().getName()
+            : "";
+        String subjectName = questions.get(0).getChapter() != null && questions.get(0).getChapter().getSubject() != null
+            && questions.get(0).getChapter().getSubject().getName() != null
+            ? questions.get(0).getChapter().getSubject().getName()
+            : "";
+
+        long totalQuestionsInChapter = questionRepository.countByChapterId(chapterId);
 
         List<Map<String, Object>> questionList = questions.stream().map(q -> {
             Map<String, Object> map = new HashMap<>();
@@ -58,14 +67,14 @@ public class PracticeController {
             map.put("optionD", q.getOptionD());
             map.put("correctAnswer", q.getCorrectAnswer());
             map.put("explanation", q.getExplanation());
-            map.put("difficulty", q.getDifficulty().name());
+            map.put("difficulty", q.getDifficulty() != null ? q.getDifficulty().name() : "MEDIUM");
             map.put("bookmarked", bookmarkedIds.contains(q.getId()));
             return map;
         }).collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
         response.put("questions", questionList);
-        response.put("totalQuestions", questionList.size());
+        response.put("totalQuestions", totalQuestionsInChapter);
         response.put("chapterName", chapterName);
         response.put("subjectName", subjectName);
 
