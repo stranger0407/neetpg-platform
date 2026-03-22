@@ -4,7 +4,9 @@ import com.neetpg.platform.entity.Question;
 import com.neetpg.platform.repository.BookmarkRepository;
 import com.neetpg.platform.repository.QuestionRepository;
 import com.neetpg.platform.security.UserPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/practice")
 @RequiredArgsConstructor
+@Slf4j
 public class PracticeController {
 
     private final QuestionRepository questionRepository;
@@ -42,9 +45,14 @@ public class PracticeController {
         }
 
         // Get bookmarked question IDs for this user
-        Set<Long> bookmarkedIds = userId == null
-            ? Collections.emptySet()
-            : new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
+        Set<Long> bookmarkedIds = Collections.emptySet();
+        if (userId != null) {
+            try {
+                bookmarkedIds = new HashSet<>(bookmarkRepository.findQuestionIdsByUserId(userId));
+            } catch (DataAccessException ex) {
+                log.warn("Failed to load bookmarked question ids for userId={}. Continuing without bookmark flags.", userId, ex);
+            }
+        }
 
         // Get chapter and subject names from the first question
         String chapterName = questions.get(0).getChapter() != null && questions.get(0).getChapter().getName() != null
@@ -55,7 +63,8 @@ public class PracticeController {
             ? questions.get(0).getChapter().getSubject().getName()
             : "";
 
-        long totalQuestionsInChapter = questionRepository.countByChapterId(chapterId);
+        // We already loaded the chapter's questions above, so avoid a second DB query.
+        long totalQuestionsInChapter = questions.size();
 
         List<Map<String, Object>> questionList = questions.stream().map(q -> {
             Map<String, Object> map = new HashMap<>();
