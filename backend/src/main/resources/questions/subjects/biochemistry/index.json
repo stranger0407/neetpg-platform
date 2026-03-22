@@ -40,6 +40,10 @@
     {
       "name": "Vitamins and Minerals",
       "file": "vitamins_and_minerals.json"
+    },
+    {
+      "name": "Integration and Clinical Correlations",
+      "file": "integration_and_clinical_correlations.json"
     }
   ]
 }
