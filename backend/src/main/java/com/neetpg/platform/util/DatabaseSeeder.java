@@ -2,6 +2,8 @@ package com.neetpg.platform.util;
 
 import com.neetpg.platform.entity.*;
 import com.neetpg.platform.repository.*;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -25,6 +27,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SubjectRepository subjectRepository;
     private final ChapterRepository chapterRepository;
     private final QuestionRepository questionRepository;
+    private final AttemptRepository attemptRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final UserNoteRepository userNoteRepository;
+    private final SpacedRepetitionRepository spacedRepetitionRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -310,8 +316,21 @@ public class DatabaseSeeder implements CommandLineRunner {
                 int jsonQuestionCount = chapterDataOpt.get().getQuestions().size();
 
                 if (hasDummyData || existingCount < jsonQuestionCount) {
+                    List<Long> questionIds = existingQuestions.stream()
+                            .map(Question::getId)
+                            .filter(Objects::nonNull)
+                            .toList();
+
+                    if (!questionIds.isEmpty()) {
+                        // Remove dependent rows first to avoid FK violations when replacing question IDs.
+                        attemptRepository.deleteAllByQuestionIds(questionIds);
+                        bookmarkRepository.deleteAllByQuestionIds(questionIds);
+                        userNoteRepository.deleteAllByQuestionIds(questionIds);
+                        spacedRepetitionRepository.deleteAllByQuestionIds(questionIds);
+                    }
+
                     // Replace: delete old, insert new from JSON
-                    questionRepository.deleteAll(existingQuestions);
+                    questionRepository.deleteAllInBatch(existingQuestions);
                     questionRepository.flush();
 
                     List<Question> questions = buildQuestionsFromData(
@@ -687,7 +706,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ChapterData {
+        @JsonAlias({"chapter"})
         private String name;
         private List<QuestionData> questions;
     }

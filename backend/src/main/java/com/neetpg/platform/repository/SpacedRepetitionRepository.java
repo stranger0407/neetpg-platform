@@ -2,6 +2,7 @@ package com.neetpg.platform.repository;
 
 import com.neetpg.platform.entity.SpacedRepetition;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -10,6 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SpacedRepetitionRepository extends JpaRepository<SpacedRepetition, Long> {
+
+       @Modifying
+       @Query("DELETE FROM SpacedRepetition sr WHERE sr.question.id IN :questionIds")
+       int deleteAllByQuestionIds(@Param("questionIds") List<Long> questionIds);
 
     Optional<SpacedRepetition> findByUserIdAndQuestionId(Long userId, Long questionId);
 

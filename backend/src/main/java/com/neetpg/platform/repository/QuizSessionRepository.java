@@ -2,6 +2,7 @@ package com.neetpg.platform.repository;
 
 import com.neetpg.platform.entity.QuizSession;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QuizSessionRepository extends JpaRepository<QuizSession, Long> {
+
+       @Modifying
+       @Query("DELETE FROM QuizSession qs WHERE qs.chapter.id IN :chapterIds")
+       int deleteAllByChapterIds(@Param("chapterIds") List<Long> chapterIds);
 
     List<QuizSession> findByUserIdOrderByStartedAtDesc(Long userId);
 

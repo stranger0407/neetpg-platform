@@ -2,6 +2,7 @@ package com.neetpg.platform.repository;
 
 import com.neetpg.platform.entity.Attempt;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -9,6 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AttemptRepository extends JpaRepository<Attempt, Long> {
+
+       @Modifying
+       @Query("DELETE FROM Attempt a WHERE a.question.id IN :questionIds")
+       int deleteAllByQuestionIds(@Param("questionIds") List<Long> questionIds);
 
     List<Attempt> findByUserId(Long userId);
 

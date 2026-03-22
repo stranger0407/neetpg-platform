@@ -6,15 +6,21 @@ import com.neetpg.platform.entity.Question;
 import com.neetpg.platform.entity.Subject;
 import com.neetpg.platform.exception.BadRequestException;
 import com.neetpg.platform.exception.ResourceNotFoundException;
+import com.neetpg.platform.repository.AttemptRepository;
+import com.neetpg.platform.repository.BookmarkRepository;
 import com.neetpg.platform.repository.ChapterRepository;
 import com.neetpg.platform.repository.QuestionRepository;
+import com.neetpg.platform.repository.QuizSessionRepository;
+import com.neetpg.platform.repository.SpacedRepetitionRepository;
 import com.neetpg.platform.repository.SubjectRepository;
+import com.neetpg.platform.repository.UserNoteRepository;
 import com.neetpg.platform.util.DatabaseSeeder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +45,14 @@ public class AdminService {
     private final QuestionRepository questionRepository;
     private final ChapterRepository chapterRepository;
     private final SubjectRepository subjectRepository;
+    private final AttemptRepository attemptRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final UserNoteRepository userNoteRepository;
+    private final SpacedRepetitionRepository spacedRepetitionRepository;
+    private final QuizSessionRepository quizSessionRepository;
     private final DatabaseSeeder databaseSeeder;
+    private final EntityManager entityManager;
+    private final ReentrantLock rebuildLock = new ReentrantLock();
 
     @Transactional
     public QuestionDto.AdminQuestionResponse createQuestion(QuestionDto.CreateRequest request) {
@@ -177,6 +191,16 @@ public class AdminService {
 
     @Transactional
     public Map<String, Object> rebuildQuestionBank(boolean dryRun, boolean resourceOnly, List<String> keepQuestionSubjects) {
+        if (!rebuildLock.tryLock()) {
+            Map<String, Object> busy = new HashMap<>();
+            busy.put("status", "busy");
+            busy.put("message", "A rebuild is already in progress. Please retry shortly.");
+            busy.put("dryRun", dryRun);
+            busy.put("resourceOnly", resourceOnly);
+            return busy;
+        }
+
+        try {
         long beforeSubjects = subjectRepository.count();
         long beforeChapters = chapterRepository.count();
         long beforeQuestions = questionRepository.count();
@@ -205,9 +229,11 @@ public class AdminService {
             return result;
         }
 
-        questionRepository.deleteAllInBatch();
-        chapterRepository.deleteAllInBatch();
-        subjectRepository.deleteAllInBatch();
+        // Fast, FK-safe reset across the full question bank graph.
+        entityManager.createNativeQuery(
+            "TRUNCATE TABLE attempts, bookmarks, user_notes, spaced_repetition, quiz_sessions, questions, chapters, subjects RESTART IDENTITY CASCADE"
+        ).executeUpdate();
+        entityManager.clear();
 
         if (resourceOnly) {
             databaseSeeder.backfillFromResourcesWithoutFallback();
@@ -241,6 +267,9 @@ public class AdminService {
         result.put("afterChapters", chapterRepository.count());
         result.put("afterQuestions", questionRepository.count());
         return result;
+        } finally {
+            rebuildLock.unlock();
+        }
     }
 
     @Transactional
@@ -328,6 +357,7 @@ public class AdminService {
 
         List<Question> existing = questionRepository.findByChapterId(chapter.getId());
         if (!existing.isEmpty()) {
+            deleteDependentRowsForQuestions(existing);
             questionRepository.deleteAllInBatch(existing);
         }
         questionRepository.saveAll(replacement);
@@ -336,6 +366,22 @@ public class AdminService {
         result.put("inserted", replacement.size());
         result.put("finalCount", questionRepository.countByChapterId(chapter.getId()));
         return result;
+    }
+
+    private void deleteDependentRowsForQuestions(List<Question> questions) {
+        List<Long> questionIds = questions.stream()
+                .map(Question::getId)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        if (questionIds.isEmpty()) {
+            return;
+        }
+
+        attemptRepository.deleteAllByQuestionIds(questionIds);
+        bookmarkRepository.deleteAllByQuestionIds(questionIds);
+        userNoteRepository.deleteAllByQuestionIds(questionIds);
+        spacedRepetitionRepository.deleteAllByQuestionIds(questionIds);
     }
 
     private SubjectResourceData loadSubjectResource(String resourceKey, String subjectName) {
