@@ -4,25 +4,29 @@ import com.neetpg.platform.entity.Question;
 import com.neetpg.platform.repository.BookmarkRepository;
 import com.neetpg.platform.repository.QuestionRepository;
 import com.neetpg.platform.security.UserPrincipal;
-import lombok.extern.slf4j.Slf4j;
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/practice")
-@RequiredArgsConstructor
-@Slf4j
 public class PracticeController {
 
     private final QuestionRepository questionRepository;
     private final BookmarkRepository bookmarkRepository;
+    private static final Logger log = LoggerFactory.getLogger(PracticeController.class);
+
+    public PracticeController(QuestionRepository questionRepository, BookmarkRepository bookmarkRepository) {
+        this.questionRepository = questionRepository;
+        this.bookmarkRepository = bookmarkRepository;
+    }
 
     @GetMapping("/chapter/{chapterId}")
     @Transactional(readOnly = true)
@@ -53,6 +57,7 @@ public class PracticeController {
                 log.warn("Failed to load bookmarked question ids for userId={}. Continuing without bookmark flags.", userId, ex);
             }
         }
+        final Set<Long> finalBookmarkedIds = bookmarkedIds;
 
         // Get chapter and subject names from the first question
         String chapterName = questions.get(0).getChapter() != null && questions.get(0).getChapter().getName() != null
@@ -77,7 +82,7 @@ public class PracticeController {
             map.put("correctAnswer", q.getCorrectAnswer());
             map.put("explanation", q.getExplanation());
             map.put("difficulty", q.getDifficulty() != null ? q.getDifficulty().name() : "MEDIUM");
-            map.put("bookmarked", bookmarkedIds.contains(q.getId()));
+            map.put("bookmarked", finalBookmarkedIds.contains(q.getId()));
             return map;
         }).collect(Collectors.toList());
 
