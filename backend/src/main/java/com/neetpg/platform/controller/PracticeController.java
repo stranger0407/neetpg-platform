@@ -37,7 +37,7 @@ public class PracticeController {
         Long userId = userPrincipal != null ? userPrincipal.getId() : null;
 
         // Get all questions for this chapter
-        List<Question> questions = questionRepository.findByChapterId(chapterId);
+        List<Question> questions = questionRepository.findByChapterIdWithChapterAndSubject(chapterId);
 
         if (questions.isEmpty()) {
             Map<String, Object> response = new HashMap<>();
