@@ -532,6 +532,20 @@
       "previousYear": false,
       "conceptTag": "DHA brain retina fluidity photoreceptor",
       "tags": "Biochemistry,Chemistry of Lipids"
+    },
+    {
+      "questionText": "A defect in the synthesis of specialized very long-chain fatty acids (VLCFAs) and their incorporation into sphingolipids predominantly affects which of the following cellular components?",
+      "optionA": "Mitochondrial matrix",
+      "optionB": "Myelin sheath of neurons",
+      "optionC": "Lysosomal lumen",
+      "optionD": "Erythrocyte plasma membrane",
+      "correctAnswer": "B",
+      "explanation": "Very long-chain fatty acids (VLCFAs) and sphingolipids (such as galactocerebroside and sphingomyelin) are essential structural components of the myelin sheath in the central and peripheral nervous systems. Defects in long-chain fatty acid metabolism or sphingolipid synthesis frequently lead to demyelinating diseases (leukodystrophies).",
+      "difficulty": "HARD",
+      "source": "NEET PG Pattern",
+      "previousYear": false,
+      "conceptTag": "VLCFA Myelin Sheath",
+      "tags": "Biochemistry,Chemistry of Lipids"
     }
   ]
 }

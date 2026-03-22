@@ -854,6 +854,20 @@
       "previousYear": false,
       "conceptTag": "Reducing sugar anomeric carbon sucrose",
       "tags": "Biochemistry,Chemistry of Carbohydrates"
+    },
+    {
+      "questionText": "A 10-month-old child presents with frequent episodes of weakness, sweating, and hepatomegaly. Fasting blood glucose is 40 g/dL. Administration of glucagon fails to increase blood glucose but significantly increases blood lactate levels. The deficient enzyme is:",
+      "optionA": "Muscle phosphorylase",
+      "optionB": "Glucose-6-phosphatase",
+      "optionC": "Lysosomal acid maltase",
+      "optionD": "Glycogen branching enzyme",
+      "correctAnswer": "B",
+      "explanation": "Von Gierke disease (GSD I) is characterized by a deficiency in glucose-6-phosphatase, preventing the final step of both glycogenolysis and gluconeogenesis, leading to severe fasting hypoglycemia. Administration of glucagon stimulates glycogen breakdown, but because glucose-6-phosphate cannot be dephosphorylated, it is instead shunted into glycolysis, producing excess lactate and causing lactic acidosis.",
+      "difficulty": "HARD",
+      "source": "NEET PG Pattern",
+      "previousYear": false,
+      "conceptTag": "Von Gierke Lactic Acidosis",
+      "tags": "Biochemistry,Chemistry of Carbohydrates"
     }
   ]
 }
