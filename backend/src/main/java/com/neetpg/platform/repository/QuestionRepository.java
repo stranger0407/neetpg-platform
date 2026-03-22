@@ -17,6 +17,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     List<Question> findByChapterId(Long chapterId);
 
+       @Query("SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE c.id = :chapterId ORDER BY q.id")
+       List<Question> findByChapterIdWithChapterAndSubject(@Param("chapterId") Long chapterId);
+
     @Query("SELECT q FROM Question q JOIN FETCH q.chapter c JOIN FETCH c.subject WHERE q.id = :id")
     Optional<Question> findByIdWithChapterAndSubject(@Param("id") Long id);
 
