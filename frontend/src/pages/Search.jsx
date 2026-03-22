@@ -4,8 +4,10 @@ import api from '../api';
 export default function Search() {
   const [keyword, setKeyword] = useState('');
   const [subjectId, setSubjectId] = useState('');
+  const [chapterId, setChapterId] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [subjects, setSubjects] = useState([]);
+  const [chapters, setChapters] = useState([]);
   const [results, setResults] = useState([]);
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(0);
@@ -33,8 +35,29 @@ export default function Search() {
     fetchSubjects();
   }, []);
 
+  useEffect(() => {
+    if (!subjectId) {
+      setChapters([]);
+      setChapterId('');
+      return;
+    }
+
+    const fetchChapters = async () => {
+      try {
+        const res = await api.get(`/subjects/${subjectId}/chapters`);
+        const chapterList = Array.isArray(res.data) ? res.data : res.data?.chapters || [];
+        setChapters(chapterList);
+      } catch {
+        setChapters([]);
+      }
+    };
+
+    setChapterId('');
+    fetchChapters();
+  }, [subjectId]);
+
   const doSearch = async (pageNum = 0) => {
-    if (!keyword.trim() && !subjectId && !difficulty) return;
+    if (!keyword.trim() && !subjectId && !chapterId && !difficulty) return;
 
     setLoading(true);
     setError('');
@@ -46,6 +69,7 @@ export default function Search() {
       params.set('page', pageNum);
       params.set('size', '20');
       if (subjectId) params.set('subjectId', subjectId);
+      if (chapterId) params.set('chapterId', chapterId);
       if (difficulty) params.set('difficulty', difficulty);
 
       const res = await api.get(`/search?${params.toString()}`);
@@ -113,7 +137,7 @@ export default function Search() {
               </div>
               <button
                 type="submit"
-                disabled={loading || (!keyword.trim() && !subjectId && !difficulty)}
+                disabled={loading || (!keyword.trim() && !subjectId && !chapterId && !difficulty)}
                 className="px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition-colors"
               >
                 {loading ? 'Searching...' : 'Search'}
@@ -129,6 +153,19 @@ export default function Search() {
                   <option value="">All Subjects</option>
                   {subjects.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:w-56">
+                <select
+                  value={chapterId}
+                  onChange={(e) => setChapterId(e.target.value)}
+                  disabled={!subjectId || chapters.length === 0}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-700 bg-white disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  <option value="">{subjectId ? 'All Chapters' : 'Select Subject First'}</option>
+                  {chapters.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>

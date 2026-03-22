@@ -26,43 +26,37 @@ public class SearchController {
     public ResponseEntity<Map<String, Object>> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long subjectId,
+            @RequestParam(required = false) Long chapterId,
             @RequestParam(required = false) String difficulty,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Page<Question> results;
         int clampedSize = Math.min(size, 100);
         PageRequest pageRequest = PageRequest.of(page, clampedSize);
 
-        boolean hasKeyword = keyword != null && !keyword.isBlank();
-        boolean hasSubject = subjectId != null;
-        boolean hasDifficulty = difficulty != null && !difficulty.isBlank();
+        String normalizedKeyword = keyword != null && !keyword.isBlank() ? keyword.trim() : null;
+        String normalizedDifficulty = difficulty != null && !difficulty.isBlank() ? difficulty.trim().toUpperCase() : null;
+        Question.Difficulty parsedDifficulty = null;
 
-        if (hasKeyword) {
-            if (hasSubject && hasDifficulty) {
-                results = questionRepository.searchByKeywordAndSubjectAndDifficulty(
-                    keyword, subjectId, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
-            } else if (hasSubject) {
-                results = questionRepository.searchByKeywordAndSubject(keyword, subjectId, pageRequest);
-            } else if (hasDifficulty) {
-                results = questionRepository.searchByKeywordAndDifficulty(
-                    keyword, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
-            } else {
-                results = questionRepository.searchByKeyword(keyword, pageRequest);
-            }
-        } else {
-            if (hasSubject && hasDifficulty) {
-                results = questionRepository.findBySubjectAndDifficulty(
-                    subjectId, Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
-            } else if (hasSubject) {
-                results = questionRepository.findBySubject(subjectId, pageRequest);
-            } else if (hasDifficulty) {
-                results = questionRepository.findByDifficulty(
-                    Question.Difficulty.valueOf(difficulty.toUpperCase()), pageRequest);
-            } else {
-                return ResponseEntity.badRequest().body(Map.of("message", "Please provide a keyword or select a filter"));
+        if (normalizedDifficulty != null) {
+            try {
+                parsedDifficulty = Question.Difficulty.valueOf(normalizedDifficulty);
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Invalid difficulty value"));
             }
         }
+
+        if (normalizedKeyword == null && subjectId == null && chapterId == null && parsedDifficulty == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Please provide a keyword or select a filter"));
+        }
+
+        Page<Question> results = questionRepository.searchWithFilters(
+                normalizedKeyword,
+                subjectId,
+                chapterId,
+                parsedDifficulty,
+                pageRequest
+        );
 
         List<Map<String, Object>> questions = results.getContent().stream().map(q -> {
             Map<String, Object> map = new HashMap<>();
