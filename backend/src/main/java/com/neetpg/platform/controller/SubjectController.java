@@ -8,6 +8,7 @@ import com.neetpg.platform.repository.ChapterRepository;
 import com.neetpg.platform.repository.QuestionRepository;
 import com.neetpg.platform.repository.SubjectRepository;
 import com.neetpg.platform.security.UserPrincipal;
+import com.neetpg.platform.util.DatabaseSeeder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class SubjectController {
     private final ChapterRepository chapterRepository;
     private final QuestionRepository questionRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final DatabaseSeeder databaseSeeder;
 
     @Value("${spring.datasource.url:unknown}")
     private String dbUrl;
@@ -98,6 +100,20 @@ public class SubjectController {
         result.put("totalQuestions", questions.size());
         result.put("questions", questionList);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/admin/reseed-questions")
+    public ResponseEntity<Map<String, Object>> reseedQuestions() {
+        try {
+            Map<String, Object> result = databaseSeeder.reseedFromResources();
+            result.put("status", "success");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", "error");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
 
     @PostMapping("/admin/seed")
