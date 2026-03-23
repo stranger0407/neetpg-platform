@@ -11,6 +11,7 @@ export default function Quiz() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timers, setTimers] = useState({});
+  const [totalElapsed, setTotalElapsed] = useState(0);
   const [bookmarked, setBookmarked] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -52,11 +53,12 @@ export default function Quiz() {
     startQuiz();
   }, [searchParams]);
 
-  // Per-question timer
+  // Total elapsed timer + per-question timer (for analytics)
   useEffect(() => {
     if (!questions.length) return;
     clearInterval(timerInterval.current);
     timerInterval.current = setInterval(() => {
+      setTotalElapsed(prev => prev + 1);
       setTimers(prev => ({ ...prev, [currentIndex]: (prev[currentIndex] || 0) + 1 }));
     }, 1000);
     return () => clearInterval(timerInterval.current);
@@ -161,7 +163,7 @@ export default function Quiz() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-sm text-gray-600">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              {formatTime(timers[currentIndex])}
+              {formatTime(totalElapsed)}
             </div>
             <button onClick={() => toggleBookmark(currentQuestion.id)}
               className={`p-2 rounded-lg cursor-pointer transition-colors ${bookmarked[currentQuestion.id] ? 'text-amber-500 bg-amber-50' : 'text-gray-400 hover:bg-gray-100'}`}>
